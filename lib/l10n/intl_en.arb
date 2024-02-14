@@ -1,4 +1,22 @@
 {
   "app_name": "Medicine Alarm",
+  "reminder_take": "Reminder to take medicine!",
+  "your_name": "Your name?",
+  "next": "Next",
+  "name_null": "Please enter user name!",
+  "hello": "Hello {name}!",
+  "@hello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "what_time": "What is time now?",
+  "i_took": "I took this pill",
+  "wait_pick": "Waiting for the first pill of the day!",
+  "time_left": "Time left",
+  "prev_ball": "The previous ball",
+  "next_ball": "The next ball",
   "youHavePushedTheButtonThisManyTimes": "You have pushed the button this many times:"
 }

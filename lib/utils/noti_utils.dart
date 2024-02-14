@@ -8,8 +8,9 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> initNotification() async {
-    AndroidInitializationSettings initializationSettingsAndroid =
-        const AndroidInitializationSettings('ic_launcher');
+
+    var initializationSettingsAndroid =
+    const AndroidInitializationSettings('ic_launcher');
 
     var initializationSettingsIOS = DarwinInitializationSettings(
         requestAlertPermission: true,
@@ -20,6 +21,11 @@ class NotificationService {
 
     var initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+
+    await notificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+    await notificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()?.requestExactAlarmsPermission();
     await notificationsPlugin.initialize(initializationSettings,
         onDidReceiveNotificationResponse:
             (NotificationResponse notificationResponse) async {});

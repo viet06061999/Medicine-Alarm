@@ -1,0 +1,382 @@
+import 'package:flutter/material.dart';
+import 'package:medicine_alarm/constants.dart';
+import 'package:medicine_alarm/generated/l10n.dart';
+import 'package:medicine_alarm/global_bloc.dart';
+import 'package:medicine_alarm/models/medicine.dart';
+import 'package:medicine_alarm/pages/new_entry/new_entry_page.dart';
+import 'package:medicine_alarm/utils/time_utils.dart';
+import 'package:medicine_alarm/widgets/countdown_timer.dart';
+import 'package:medicine_alarm/widgets/custom_progress.dart';
+import 'package:one_clock/one_clock.dart';
+import 'package:provider/provider.dart';
+import 'package:sizer/sizer.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: kPrimaryColor,
+        actions: [
+          IconButton(
+              onPressed: () {},
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.white,
+              ))
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(3.h),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const TopContainer(),
+              SizedBox(
+                height: 2.h,
+              ),
+              //the widget take space as per need
+              // const Flexible(
+              //   child: BottomContainer(),
+              // ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: InkResponse(
+        onTap: () {
+          // go to new entry page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NewEntryPage(),
+            ),
+          );
+        },
+        child: SizedBox(
+          width: 18.w,
+          height: 9.h,
+          child: Card(
+            color: kPrimaryColor,
+            shape: BeveledRectangleBorder(
+              borderRadius: BorderRadius.circular(3.h),
+            ),
+            child: Icon(
+              Icons.add_outlined,
+              color: kScaffoldColor,
+              size: 50.sp,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TopContainer extends StatefulWidget {
+  const TopContainer({Key? key}) : super(key: key);
+
+  @override
+  State<TopContainer> createState() => _TopContainerState();
+}
+
+class _TopContainerState extends State<TopContainer> {
+  Medicine? selectedMed;
+  late final GlobalBloc globalBloc;
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    globalBloc = Provider.of<GlobalBloc>(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      // mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        StreamBuilder<String?>(
+            stream: globalBloc.userName$,
+            builder: (context, snapshot) {
+              return Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.only(bottom: 1.h),
+                child: Text(
+                  S.current.hello(snapshot.data ?? ""),
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              );
+            }),
+        StreamBuilder<List<Medicine>>(
+            stream: globalBloc.medicineList$,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data?.isNotEmpty == true) {
+                selectedMed ??= snapshot.data?.first;
+                return Column(
+                  children: [
+                    Container(
+                      height: 4.h,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(5.0),
+                          color: kPrimaryColor),
+                      padding: EdgeInsets.symmetric(horizontal: 1.h),
+                      child: DropdownButton<Medicine>(
+                        padding: const EdgeInsets.symmetric(vertical: 1),
+                        underline: const SizedBox(),
+                        dropdownColor: kPrimaryColor,
+                        value: selectedMed ?? snapshot.data?.first,
+                        onChanged: (Medicine? newValue) {
+                          setState(() {
+                            selectedMed = newValue;
+                          });
+                        },
+                        items: snapshot.data!.map((Medicine medicine) {
+                          return DropdownMenuItem<Medicine>(
+                            value: medicine,
+                            child: Text(
+                              medicine.getName,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Text(
+                      S.current.what_time,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Colors.black),
+                    ),
+                    SizedBox(
+                      width: 150,
+                      height: 150,
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: 150,
+                              height: 150,
+                              decoration: const BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                    'assets/images/analog.png',
+                                  ),
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Align(
+                            alignment: Alignment.center,
+                            child: AnalogClock(
+                              width: 100,
+                              height: 100,
+                              isLive: true,
+                              hourHandColor: kPrimaryColor,
+                              minuteHandColor: kPrimaryColor,
+                              secondHandColor: kOrange,
+                              showNumbers: false,
+                              showTicks: false,
+                              showDigitalClock: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 16),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: kPrimaryColor),
+                            child: Text(
+                                TimeUtils.convertTime(
+                                    TimeUtils.pattern_1, DateTime.now()),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ))),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 2, horizontal: 12),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(5.0),
+                              color: kPrimaryColor),
+                          child: const DigitalClock(
+                            showSeconds: true,
+                            textScaleFactor: 0.9,
+                            digitalClockTextColor: Colors.white,
+                            format: TimeUtils.pattern_2,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 1),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 2.h,
+                    ),
+                    buildProgress()
+                  ],
+                );
+              }
+              return const Text("empty");
+            })
+      ],
+    );
+  }
+
+  Widget buildProgress() {
+    if (selectedMed == null) {
+      return Container();
+    }
+    var last = selectedMed!.pickTimes?.last ?? DateTime.now();
+    return Column(
+      children: [
+        isBefore()
+            ? Text(
+                S.current.wait_pick,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Colors.black),
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 20.w,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(5.0),
+                              color: kPrimaryColor),
+                          padding: EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                              TimeUtils.convertTime(TimeUtils.pattern_4, last),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.white)),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 151,
+                        height: 145,
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: CountdownTimer(
+                                startTime: last,
+                                durationInHours: selectedMed!.interval ?? 0,
+                                onCount: () {
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                            Image.asset(
+                              'assets/images/progress.png',
+                              fit: BoxFit.cover,
+                              width: 151,
+                              height: 145,
+                            ),
+                            SizedBox(
+                              width: 151,
+                              height: 145,
+                              child: CustomProgressWidget(
+                                strokeWidth: 14,
+                                progress:
+                                    (DateTime.now().millisecondsSinceEpoch -
+                                            last.millisecondsSinceEpoch) *
+                                        100 /
+                                        (selectedMed!.getInterval * 3600000),
+                                progressColor: kPrimaryColor,
+                                incompleteColor: Colors.transparent,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20.w,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(5.0),
+                              color: kPrimaryColor),
+                          padding: EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                              TimeUtils.convertTime(TimeUtils.pattern_4, last.add(Duration(hours: selectedMed!.getInterval))),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.white)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 20.w,
+                        child: Text(S.current.prev_ball,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleSmall),
+                      ),
+                      SizedBox(
+                        width: 20.w,
+                        child: Text(S.current.time_left,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleSmall),
+                      ),
+                      SizedBox(
+                        width: 20.w,
+                        child: Text(S.current.next_ball,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleSmall),
+                      )
+                    ],
+                  )
+                ],
+              ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
+          onPressed: () {
+            globalBloc.tookPill(selectedMed!);
+          },
+          child: Text(
+            S.current.i_took,
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  bool isBefore() {
+    var lastPick = selectedMed!.pickTimes?.last;
+    return lastPick == null ||
+        TimeUtils.isBeforeStart(lastPick, selectedMed!.startTime!);
+  }
+}

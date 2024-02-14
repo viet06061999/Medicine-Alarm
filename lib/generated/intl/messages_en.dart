@@ -20,11 +20,27 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
+  static String m0(name) => "Hello ${name}!";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "app_name": MessageLookupByLibrary.simpleMessage("Medicine Alarm"),
+        "hello": m0,
+        "i_took": MessageLookupByLibrary.simpleMessage("I took this pill"),
+        "name_null":
+            MessageLookupByLibrary.simpleMessage("Please enter user name!"),
+        "next": MessageLookupByLibrary.simpleMessage("Next"),
+        "next_ball": MessageLookupByLibrary.simpleMessage("The next ball"),
+        "prev_ball": MessageLookupByLibrary.simpleMessage("The previous ball"),
+        "reminder_take":
+            MessageLookupByLibrary.simpleMessage("Reminder to take medicine!"),
+        "time_left": MessageLookupByLibrary.simpleMessage("Time left"),
+        "wait_pick": MessageLookupByLibrary.simpleMessage(
+            "Waiting for the first pill of the day!"),
+        "what_time": MessageLookupByLibrary.simpleMessage("What is time now?"),
         "youHavePushedTheButtonThisManyTimes":
             MessageLookupByLibrary.simpleMessage(
-                "You have pushed the button this many times:")
+                "You have pushed the button this many times:"),
+        "your_name": MessageLookupByLibrary.simpleMessage("Your name?")
       };
 }

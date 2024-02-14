@@ -1,4 +1,22 @@
 {
   "app_name": "תזכורת תרופות",
+  "reminder_take": "תזכורת לקחת תרופהn!",
+  "your_name": "השם שלך?",
+  "next": "הַבָּא",
+  "name_null": "נא להזין שם משתמש!",
+  "hello": "שלום {name}!",
+  "@hello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "what_time": "מה השעה עכשיו?",
+  "i_took": "לקחתי את הכדור הזה",
+  "wait_pick": "מחכה לגלולה הראשונה של היום!",
+  "time_left": "הזמן שנותר",
+  "prev_ball": "הכדור הקודם",
+  "next_ball": "הכדור הבא",
   "youHavePushedTheButtonThisManyTimes": "You have pushed the button this many times:"
 }

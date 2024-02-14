@@ -7,9 +7,9 @@
         <compositeConfiguration>
           <compositeBuild compositeDefinitionSource="SCRIPT">
             <builds>
-              <build path="$PROJECT_DIR$/../../../code/flutter/packages/flutter_tools/gradle" name="gradle">
+              <build path="$USER_HOME$/fvm/versions/3.16.9/packages/flutter_tools/gradle" name="gradle">
                 <projects>
-                  <project path="$PROJECT_DIR$/../../../code/flutter/packages/flutter_tools/gradle" />
+                  <project path="$USER_HOME$/fvm/versions/3.16.9/packages/flutter_tools/gradle" />
                 </projects>
               </build>
             </builds>
@@ -19,9 +19,11 @@
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/../../../code/flutter/packages/flutter_tools/gradle" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-16.3.2/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_timezone-1.0.8/android" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$USER_HOME$/fvm/versions/3.16.9/packages/flutter_tools/gradle" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />
