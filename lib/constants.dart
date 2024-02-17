@@ -10,8 +10,19 @@ const Color kTextColor = Color(0xFF56485D);
 const Color kTitleColor = Color(0xFFE58F75);
 const Color kTextPrime = Color(0xFF012D6D);
 const Color kOrange = Color(0xFFFF7900);
+const Color kBackground = Color(0xFFE0F0FF);
+const Color kStroke = Color(0xFFCBCBCB);
+const Color kHint = Color(0xFFEFC39B);
 
 InputBorder noOutLineBorder = OutlineInputBorder(
   borderSide: BorderSide.none,
+  borderRadius: BorderRadius.circular(10),
+);
+
+InputBorder outLineBorder = OutlineInputBorder(
+  borderSide: const BorderSide(
+    color: kStroke, // Màu viền khi không được nhấn vào
+    width: 1.0, // Độ dày của viền
+  ),
   borderRadius: BorderRadius.circular(10),
 );

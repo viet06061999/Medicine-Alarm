@@ -18,5 +18,21 @@
   "time_left": "Time left",
   "prev_ball": "The previous ball",
   "next_ball": "The next ball",
-  "youHavePushedTheButtonThisManyTimes": "You have pushed the button this many times:"
+  "when_did": "When did I take today?",
+  "settings": "Settings",
+  "name_pill": "Name off pill",
+  "list_pill": "List off pill",
+  "describe": "Describe",
+  "duration_pill": "Duration take pill",
+  "time_bed": "Bed time",
+  "start_time": "Start time",
+  "day_of_week": "Day of the week",
+  "all": "All",
+  "sun": "Sun",
+  "mon": "Mon",
+  "tue": "Tue",
+  "wed": "Wed",
+  "thu": "Thu",
+  "fri": "Fri",
+  "sat": "Sat"
 }

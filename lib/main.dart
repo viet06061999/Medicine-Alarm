@@ -98,7 +98,7 @@ class _MyAppState extends State<MyApp> {
                 letterSpacing: 1.0,
               ),
               titleMedium:
-              GoogleFonts.openSans(fontSize: 14.sp, fontWeight: FontWeight.w500, color: kTextPrime),
+              GoogleFonts.openSans(fontSize: 12.sp, fontWeight: FontWeight.w500, color: kTextPrime),
               titleSmall:
               GoogleFonts.openSans(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
               bodySmall: GoogleFonts.openSans(

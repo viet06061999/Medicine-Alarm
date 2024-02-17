@@ -18,5 +18,21 @@
   "time_left": "הזמן שנותר",
   "prev_ball": "הכדור הקודם",
   "next_ball": "הכדור הבא",
-  "youHavePushedTheButtonThisManyTimes": "You have pushed the button this many times:"
+  "when_did": "מתי לקחתי היום?",
+  "settings": "הגדרות",
+  "name_pill": "שם הגלולה",
+  "list_pill": "רשימת הגלולה",
+  "describe": "לְתַאֵר",
+  "duration_pill": "משך לקחת גלולה",
+  "time_bed": "זמן השינה",
+  "start_time": "שעת התחלה",
+  "day_of_week": "יום בשבוע",
+  "all": "את כל",
+  "sun": "ום א",
+  "mon": "ום ב",
+  "tue": "ום ג",
+  "wed": "ום ד",
+  "thu": "ום ה",
+  "fri": "ום ו",
+  "sat": "ום ש"
 }

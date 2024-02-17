@@ -170,11 +170,171 @@ class S {
     );
   }
 
-  /// `You have pushed the button this many times:`
-  String get youHavePushedTheButtonThisManyTimes {
+  /// `When did I take today?`
+  String get when_did {
     return Intl.message(
-      'You have pushed the button this many times:',
-      name: 'youHavePushedTheButtonThisManyTimes',
+      'When did I take today?',
+      name: 'when_did',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get settings {
+    return Intl.message(
+      'Settings',
+      name: 'settings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name off pill`
+  String get name_pill {
+    return Intl.message(
+      'Name off pill',
+      name: 'name_pill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `List off pill`
+  String get list_pill {
+    return Intl.message(
+      'List off pill',
+      name: 'list_pill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Describe`
+  String get describe {
+    return Intl.message(
+      'Describe',
+      name: 'describe',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Duration take pill`
+  String get duration_pill {
+    return Intl.message(
+      'Duration take pill',
+      name: 'duration_pill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bed time`
+  String get time_bed {
+    return Intl.message(
+      'Bed time',
+      name: 'time_bed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start time`
+  String get start_time {
+    return Intl.message(
+      'Start time',
+      name: 'start_time',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Day of the week`
+  String get day_of_week {
+    return Intl.message(
+      'Day of the week',
+      name: 'day_of_week',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get all {
+    return Intl.message(
+      'All',
+      name: 'all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sun`
+  String get sun {
+    return Intl.message(
+      'Sun',
+      name: 'sun',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mon`
+  String get mon {
+    return Intl.message(
+      'Mon',
+      name: 'mon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tue`
+  String get tue {
+    return Intl.message(
+      'Tue',
+      name: 'tue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wed`
+  String get wed {
+    return Intl.message(
+      'Wed',
+      name: 'wed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thu`
+  String get thu {
+    return Intl.message(
+      'Thu',
+      name: 'thu',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fri`
+  String get fri {
+    return Intl.message(
+      'Fri',
+      name: 'fri',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sat`
+  String get sat {
+    return Intl.message(
+      'Sat',
+      name: 'sat',
       desc: '',
       args: [],
     );

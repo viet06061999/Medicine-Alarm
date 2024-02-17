@@ -5,19 +5,24 @@ class Medicine {
   final String id;
   final List<dynamic>? notificationIDs;
   final String? medicineName;
+  final String? listPill;
   final int? dosage;
   final String? medicineType;
+  final String? description;
   final int? interval;
   final TimeOfDay startTime;
+  final TimeOfDay bedTime;
   List<DateTime>? pickTimes;
 
-  Medicine(
-    this.id, {
+  Medicine(this.id, {
     this.notificationIDs,
     this.medicineName,
+    this.listPill,
     this.dosage,
     this.medicineType,
+    this.description,
     required this.startTime,
+    required this.bedTime,
     this.interval,
     this.pickTimes,
   });
@@ -31,7 +36,16 @@ class Medicine {
 
   int get getInterval => interval!;
 
-  TimeOfDay get getStartTime => startTime!;
+  TimeOfDay get getStartTime => startTime;
+
+  String get getStartTimeStr =>
+      "${startTime.hour <= 9 ? "0${startTime.hour}" : startTime
+          .hour}:${startTime.minute <= 9 ? "0${startTime.minute}" : startTime
+          .minute}";
+
+  String get geBedTimeStr =>
+      "${bedTime.hour <= 9 ? "0${bedTime.hour}" : bedTime.hour}:${bedTime
+          .minute <= 9 ? "0${bedTime.minute}" : bedTime.minute}";
 
   List<dynamic> get getIDs => notificationIDs!;
 
@@ -44,7 +58,12 @@ class Medicine {
       'type': medicineType,
       'interval': interval,
       'start':
-          "${startTime.hour <= 9 ? "0" : startTime.hour}:${startTime.minute <= 9 ? "0" : startTime.minute}",
+      "${startTime.hour <= 9 ? "0${startTime.hour}" : startTime
+          .hour}:${startTime.minute <= 9 ? "0${startTime.minute}" : startTime
+          .minute}",
+      'bedTime':
+      "${bedTime.hour <= 9 ? "0${bedTime.hour}" : bedTime.hour}:${bedTime
+          .minute <= 9 ? "0${bedTime.minute}" : bedTime.minute}",
       'pickTimes': pickTimes?.map((e) {
         return TimeUtils.convertTime(TimeUtils.pattern_3, e);
       }).toList(),
@@ -60,10 +79,11 @@ class Medicine {
       medicineType: parsedJson['type'],
       interval: parsedJson['interval'],
       startTime: TimeUtils.parseTimeOfDay(parsedJson['start']),
+      bedTime: TimeUtils.parseTimeOfDay(parsedJson['bedTime']),
       pickTimes: parsedJson['pickTimes'] != null
           ? List<String>.from(parsedJson['pickTimes'])
-              .map((e) => TimeUtils.parseTime(TimeUtils.pattern_3, e))
-              .toList()
+          .map((e) => TimeUtils.parseTime(TimeUtils.pattern_3, e))
+          .toList()
           : null,
     );
   }

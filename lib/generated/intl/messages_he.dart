@@ -24,22 +24,36 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "all": MessageLookupByLibrary.simpleMessage("את כל"),
         "app_name": MessageLookupByLibrary.simpleMessage("תזכורת תרופות"),
+        "day_of_week": MessageLookupByLibrary.simpleMessage("יום בשבוע"),
+        "describe": MessageLookupByLibrary.simpleMessage("לְתַאֵר"),
+        "duration_pill": MessageLookupByLibrary.simpleMessage("משך לקחת גלולה"),
+        "fri": MessageLookupByLibrary.simpleMessage("ום ו"),
         "hello": m0,
         "i_took": MessageLookupByLibrary.simpleMessage("לקחתי את הכדור הזה"),
+        "list_pill": MessageLookupByLibrary.simpleMessage("רשימת הגלולה"),
+        "mon": MessageLookupByLibrary.simpleMessage("ום ב"),
         "name_null": MessageLookupByLibrary.simpleMessage("נא להזין שם משתמש!"),
+        "name_pill": MessageLookupByLibrary.simpleMessage("שם הגלולה"),
         "next": MessageLookupByLibrary.simpleMessage("הַבָּא"),
         "next_ball": MessageLookupByLibrary.simpleMessage("הכדור הבא"),
         "prev_ball": MessageLookupByLibrary.simpleMessage("הכדור הקודם"),
         "reminder_take":
             MessageLookupByLibrary.simpleMessage("תזכורת לקחת תרופהn!"),
+        "sat": MessageLookupByLibrary.simpleMessage("ום ש"),
+        "settings": MessageLookupByLibrary.simpleMessage("הגדרות"),
+        "start_time": MessageLookupByLibrary.simpleMessage("שעת התחלה"),
+        "sun": MessageLookupByLibrary.simpleMessage("ום א"),
+        "thu": MessageLookupByLibrary.simpleMessage("ום ה"),
+        "time_bed": MessageLookupByLibrary.simpleMessage("זמן השינה"),
         "time_left": MessageLookupByLibrary.simpleMessage("הזמן שנותר"),
+        "tue": MessageLookupByLibrary.simpleMessage("ום ג"),
         "wait_pick": MessageLookupByLibrary.simpleMessage(
             "מחכה לגלולה הראשונה של היום!"),
+        "wed": MessageLookupByLibrary.simpleMessage("ום ד"),
         "what_time": MessageLookupByLibrary.simpleMessage("מה השעה עכשיו?"),
-        "youHavePushedTheButtonThisManyTimes":
-            MessageLookupByLibrary.simpleMessage(
-                "You have pushed the button this many times:"),
+        "when_did": MessageLookupByLibrary.simpleMessage("מתי לקחתי היום?"),
         "your_name": MessageLookupByLibrary.simpleMessage("השם שלך?")
       };
 }

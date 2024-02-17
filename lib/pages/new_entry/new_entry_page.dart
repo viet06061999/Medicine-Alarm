@@ -226,13 +226,15 @@ class _NewEntryPageState extends State<NewEntryPage> {
                           intIDs.map((i) => i.toString()).toList();
 
                       Medicine newEntryMedicine = Medicine(
-                          const Uuid().v4(),
-                          notificationIDs: notificationIDs,
-                          medicineName: medicineName,
-                          dosage: dosage,
-                          medicineType: medicineType,
-                          interval: interval,
-                          startTime: startTime);
+                        const Uuid().v4(),
+                        notificationIDs: notificationIDs,
+                        medicineName: medicineName,
+                        dosage: dosage,
+                        medicineType: medicineType,
+                        interval: interval,
+                        startTime: startTime,
+                        bedTime: startTime,
+                      );
 
                       //update medicine list via global bloc
                       globalBloc.updateMedicineList(newEntryMedicine);
@@ -307,9 +309,9 @@ class _NewEntryPageState extends State<NewEntryPage> {
   }
 
   Future<void> scheduleNotification(Medicine medicine) async {
-    var hour =  medicine.startTime?.hour ?? 0;
+    var hour = medicine.startTime?.hour ?? 0;
     var ogValue = hour;
-    var minute =  medicine.startTime?.minute ?? 0;
+    var minute = medicine.startTime?.minute ?? 0;
 
     var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
         'repeatDailyAtTime channel id', 'repeatDailyAtTime channel name',
@@ -343,18 +345,17 @@ class _NewEntryPageState extends State<NewEntryPage> {
       );
       print('schedule at ${txtime}');
       await flutterLocalNotificationsPlugin.zonedSchedule(
-        int.parse(medicine.notificationIDs![i]),
-        'Reminder: ${medicine.medicineName}',
-        medicine.medicineType.toString() != MedicineType.None.toString()
-            ? 'It is time $txtime to take your ${medicine.medicineType!.toLowerCase()}, according to schedule'
-            : 'It is time to take your medicine, according to schedule',
-        txtime,
-        platformChannelSpecifics,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time
-      );
+          int.parse(medicine.notificationIDs![i]),
+          'Reminder: ${medicine.medicineName}',
+          medicine.medicineType.toString() != MedicineType.None.toString()
+              ? 'It is time $txtime to take your ${medicine.medicineType!.toLowerCase()}, according to schedule'
+              : 'It is time to take your medicine, according to schedule',
+          txtime,
+          platformChannelSpecifics,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time);
       hour = ogValue;
     }
   }

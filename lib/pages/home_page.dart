@@ -3,6 +3,7 @@ import 'package:medicine_alarm/constants.dart';
 import 'package:medicine_alarm/generated/l10n.dart';
 import 'package:medicine_alarm/global_bloc.dart';
 import 'package:medicine_alarm/models/medicine.dart';
+import 'package:medicine_alarm/pages/medicine_details/medicine_details.dart';
 import 'package:medicine_alarm/pages/new_entry/new_entry_page.dart';
 import 'package:medicine_alarm/utils/time_utils.dart';
 import 'package:medicine_alarm/widgets/countdown_timer.dart';
@@ -11,38 +12,55 @@ import 'package:one_clock/one_clock.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Medicine? selectedMed;
+
+  GlobalBloc? globalBloc;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    globalBloc ??= Provider.of<GlobalBloc>(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: kPrimaryColor,
         actions: [
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                if (selectedMed != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return MedicineDetails(selectedMed!);
+                      },
+                    ),
+                  );
+                }
+              },
               icon: const Icon(
                 Icons.settings,
                 color: Colors.white,
               ))
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(3.h),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const TopContainer(),
-              SizedBox(
-                height: 2.h,
-              ),
-              //the widget take space as per need
-              // const Flexible(
-              //   child: BottomContainer(),
-              // ),
-            ],
-          ),
+      body: SingleChildScrollView(
+        child: Container(
+          height: 90.h,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: buildBody(),
         ),
       ),
       floatingActionButton: InkResponse(
@@ -73,33 +91,13 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-}
 
-class TopContainer extends StatefulWidget {
-  const TopContainer({Key? key}) : super(key: key);
-
-  @override
-  State<TopContainer> createState() => _TopContainerState();
-}
-
-class _TopContainerState extends State<TopContainer> {
-  Medicine? selectedMed;
-  late final GlobalBloc globalBloc;
-
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-    globalBloc = Provider.of<GlobalBloc>(context);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget buildBody() {
     return Column(
-      // mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
       children: [
         StreamBuilder<String?>(
-            stream: globalBloc.userName$,
+            stream: globalBloc?.userName$,
             builder: (context, snapshot) {
               return Container(
                 alignment: Alignment.center,
@@ -111,137 +109,209 @@ class _TopContainerState extends State<TopContainer> {
               );
             }),
         StreamBuilder<List<Medicine>>(
-            stream: globalBloc.medicineList$,
+            stream: globalBloc?.medicineList$,
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data?.isNotEmpty == true) {
                 selectedMed ??= snapshot.data?.first;
-                return Column(
-                  children: [
-                    Container(
-                      height: 4.h,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(5.0),
-                          color: kPrimaryColor),
-                      padding: EdgeInsets.symmetric(horizontal: 1.h),
-                      child: DropdownButton<Medicine>(
-                        padding: const EdgeInsets.symmetric(vertical: 1),
-                        underline: const SizedBox(),
-                        dropdownColor: kPrimaryColor,
-                        value: selectedMed ?? snapshot.data?.first,
-                        onChanged: (Medicine? newValue) {
-                          setState(() {
-                            selectedMed = newValue;
-                          });
-                        },
-                        items: snapshot.data!.map((Medicine medicine) {
-                          return DropdownMenuItem<Medicine>(
-                            value: medicine,
-                            child: Text(
-                              medicine.getName,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Text(
-                      S.current.what_time,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Colors.black),
-                    ),
-                    SizedBox(
-                      width: 150,
-                      height: 150,
-                      child: Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                              width: 150,
-                              height: 150,
-                              decoration: const BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                    'assets/images/analog.png',
-                                  ),
-                                  fit: BoxFit.contain,
-                                ),
+                return Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Container(
+                        height: 4.h,
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: kPrimaryColor),
+                        padding: EdgeInsets.symmetric(horizontal: 1.h),
+                        child: DropdownButton<Medicine>(
+                          padding: const EdgeInsets.symmetric(vertical: 1),
+                          underline: const SizedBox(),
+                          dropdownColor: kPrimaryColor,
+                          value: selectedMed ?? snapshot.data?.first,
+                          onChanged: (Medicine? newValue) {
+                            setState(() {
+                              selectedMed = newValue;
+                            });
+                          },
+                          items: snapshot.data!.map((Medicine medicine) {
+                            return DropdownMenuItem<Medicine>(
+                              value: medicine,
+                              child: Text(
+                                medicine.getName,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
-                            ),
-                          ),
-                          const Align(
-                            alignment: Alignment.center,
-                            child: AnalogClock(
-                              width: 100,
-                              height: 100,
-                              isLive: true,
-                              hourHandColor: kPrimaryColor,
-                              minuteHandColor: kPrimaryColor,
-                              secondHandColor: kOrange,
-                              showNumbers: false,
-                              showTicks: false,
-                              showDigitalClock: false,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 16),
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5.0),
-                                color: kPrimaryColor),
-                            child: Text(
-                                TimeUtils.convertTime(
-                                    TimeUtils.pattern_1, DateTime.now()),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ))),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 2, horizontal: 12),
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                              color: kPrimaryColor),
-                          child: const DigitalClock(
-                            showSeconds: true,
-                            textScaleFactor: 0.9,
-                            digitalClockTextColor: Colors.white,
-                            format: TimeUtils.pattern_2,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 1),
-                          ),
+                            );
+                          }).toList(),
                         ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-                    buildProgress()
-                  ],
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      buildClock(),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      buildProgress(),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      buildTook(),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      buildWhenDid(),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                    ],
+                  ),
                 );
               }
               return const Text("empty");
             })
       ],
     );
+  }
+
+  Widget buildClock() {
+    return Column(
+      children: [
+        Text(
+          S.current.what_time,
+          textAlign: TextAlign.center,
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(color: Colors.black),
+        ),
+        const SizedBox(
+          height: 4,
+        ),
+        SizedBox(
+          width: 150,
+          height: 150,
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(
+                        'assets/images/analog.png',
+                      ),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+              const Align(
+                alignment: Alignment.center,
+                child: AnalogClock(
+                  width: 100,
+                  height: 100,
+                  isLive: true,
+                  hourHandColor: kPrimaryColor,
+                  minuteHandColor: kPrimaryColor,
+                  secondHandColor: kOrange,
+                  showNumbers: false,
+                  showTicks: false,
+                  showDigitalClock: false,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 2, horizontal: 16),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5.0),
+                    color: kPrimaryColor),
+                child: Text(
+                    TimeUtils.convertTime(TimeUtils.pattern_1, DateTime.now()),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ))),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: kPrimaryColor),
+              child: const DigitalClock(
+                showSeconds: true,
+                textScaleFactor: 0.9,
+                digitalClockTextColor: Colors.white,
+                format: TimeUtils.pattern_2,
+                padding: EdgeInsets.symmetric(vertical: 4, horizontal: 1),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget buildWhenDid() {
+    return isBefore()
+        ? Container()
+        : Column(
+            children: [
+              Text(
+                S.current.when_did,
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Colors.black),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              SizedBox(
+                height: 36,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: selectedMed!.pickTimes?.length ?? 0,
+                  itemBuilder: (BuildContext context, int index) {
+                    var time = selectedMed!.pickTimes?[index];
+                    if (time != null) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 8),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                            color: kBackground,
+                            borderRadius: BorderRadius.circular(8)),
+                        child: Center(
+                          child: Text(
+                            TimeUtils.convertTime(TimeUtils.pattern_4, time),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: kPrimaryColor,
+                                    fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      );
+                    }
+                    return null;
+                  },
+                ),
+              )
+            ],
+          );
   }
 
   Widget buildProgress() {
@@ -272,45 +342,57 @@ class _TopContainerState extends State<TopContainer> {
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(5.0),
                               color: kPrimaryColor),
-                          padding: EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Text(
                               TimeUtils.convertTime(TimeUtils.pattern_4, last),
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.white)),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(color: Colors.white)),
                         ),
                       ),
                       SizedBox(
-                        width: 151,
-                        height: 145,
+                        width: 158,
+                        height: 158,
                         child: Stack(
                           children: [
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 2),
+                                child: Image.asset(
+                                  'assets/images/progress.jpg',
+                                  fit: BoxFit.cover,
+                                  width: 151,
+                                  height: 151,
+                                ),
+                              ),
+                            ),
                             Center(
                               child: CountdownTimer(
                                 startTime: last,
                                 durationInHours: selectedMed!.interval ?? 0,
                                 onCount: () {
-                                  setState(() {});
+                                  if (mounted) {
+                                    setState(() {});
+                                  }
                                 },
                               ),
                             ),
-                            Image.asset(
-                              'assets/images/progress.png',
-                              fit: BoxFit.cover,
-                              width: 151,
-                              height: 145,
-                            ),
-                            SizedBox(
-                              width: 151,
-                              height: 145,
-                              child: CustomProgressWidget(
-                                strokeWidth: 14,
-                                progress:
-                                    (DateTime.now().millisecondsSinceEpoch -
-                                            last.millisecondsSinceEpoch) *
-                                        100 /
-                                        (selectedMed!.getInterval * 3600000),
-                                progressColor: kPrimaryColor,
-                                incompleteColor: Colors.transparent,
+                            Center(
+                              child: SizedBox(
+                                width: 158,
+                                height: 158,
+                                child: CustomProgressWidget(
+                                  strokeWidth: 18.5,
+                                  progress:
+                                      (DateTime.now().millisecondsSinceEpoch -
+                                              last.millisecondsSinceEpoch) *
+                                          100 /
+                                          (selectedMed!.getInterval * 3600000),
+                                  progressColor: kPrimaryColor,
+                                  incompleteColor: Colors.transparent,
+                                ),
                               ),
                             )
                           ],
@@ -323,11 +405,17 @@ class _TopContainerState extends State<TopContainer> {
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(5.0),
                               color: kPrimaryColor),
-                          padding: EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Text(
-                              TimeUtils.convertTime(TimeUtils.pattern_4, last.add(Duration(hours: selectedMed!.getInterval))),
+                              TimeUtils.convertTime(
+                                  TimeUtils.pattern_4,
+                                  last.add(Duration(
+                                      hours: selectedMed!.getInterval))),
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.white)),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(color: Colors.white)),
                         ),
                       ),
                     ],
@@ -336,13 +424,14 @@ class _TopContainerState extends State<TopContainer> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
-                        width: 20.w,
+                        width: 22.w,
                         child: Text(S.current.prev_ball,
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.titleSmall),
                       ),
-                      SizedBox(
-                        width: 20.w,
+                      Container(
+                        width: 22.w,
+                        margin: EdgeInsets.only(right: 2.w),
                         child: Text(S.current.time_left,
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.titleSmall),
@@ -357,26 +446,29 @@ class _TopContainerState extends State<TopContainer> {
                   )
                 ],
               ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
-          onPressed: () {
-            globalBloc.tookPill(selectedMed!);
-          },
-          child: Text(
-            S.current.i_took,
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(color: Colors.white),
-          ),
-        ),
       ],
+    );
+  }
+
+  Widget buildTook() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
+      onPressed: () {
+        globalBloc?.tookPill(selectedMed!);
+      },
+      child: Text(
+        S.current.i_took,
+        style: Theme.of(context)
+            .textTheme
+            .titleLarge
+            ?.copyWith(color: Colors.white),
+      ),
     );
   }
 
   bool isBefore() {
     var lastPick = selectedMed!.pickTimes?.last;
     return lastPick == null ||
-        TimeUtils.isBeforeStart(lastPick, selectedMed!.startTime!);
+        TimeUtils.isBeforeStart(lastPick, selectedMed!.startTime);
   }
 }

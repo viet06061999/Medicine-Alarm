@@ -51,7 +51,9 @@ class _CountdownTimerState extends State<CountdownTimer> {
       if (n >= 10) return "$n";
       return "0$n";
     }
-
+    if(duration.isNegative){
+      return "00:00:00";
+    }
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
 

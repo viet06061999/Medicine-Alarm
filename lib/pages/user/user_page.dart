@@ -14,7 +14,7 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   late TextEditingController nameController;
-  late GlobalBloc globalBloc;
+  GlobalBloc? globalBloc;
 
   @override
   void dispose() {
@@ -31,7 +31,7 @@ class _UserPageState extends State<UserPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    globalBloc = Provider.of<GlobalBloc>(context);
+    globalBloc ??= Provider.of<GlobalBloc>(context);
   }
 
   void displayError(String error) {
@@ -114,7 +114,7 @@ class _UserPageState extends State<UserPage> {
                           if (user.isEmpty) {
                             displayError(S.current.name_null);
                           } else {
-                            globalBloc.updateUser(nameController.text);
+                            globalBloc?.updateUser(nameController.text);
                           }
                         },
                         child: Row(

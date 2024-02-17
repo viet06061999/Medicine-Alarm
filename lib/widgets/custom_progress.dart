@@ -27,6 +27,7 @@ class CustomProgressWidget extends StatelessWidget {
     );
   }
 }
+
 class ProgressPainter extends CustomPainter {
   final double progress;
   final double strokeWidth;
@@ -57,12 +58,12 @@ class ProgressPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
-    final double sweepAngle = 2 * pi * (progress   / 100);
+    final double sweepAngle = 2 * pi * ((progress >= 100 ? 100 : progress) / 100);
 
     final progressPath = Path()
       ..addArc(
         Rect.fromCircle(center: center, radius: radius),
-        pi/12 ,
+        pi/24,
         sweepAngle,
       );
 
