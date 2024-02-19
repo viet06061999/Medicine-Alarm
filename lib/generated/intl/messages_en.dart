@@ -20,18 +20,24 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(name) => "Hello ${name}!";
+  static String m0(count) => "${count} times";
+
+  static String m1(name) => "Hello ${name}!";
+
+  static String m2(hour) => "${hour} hours";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "all": MessageLookupByLibrary.simpleMessage("All"),
         "app_name": MessageLookupByLibrary.simpleMessage("Medicine Alarm"),
+        "count_option": m0,
         "day_of_week": MessageLookupByLibrary.simpleMessage("Day of the week"),
         "describe": MessageLookupByLibrary.simpleMessage("Describe"),
         "duration_pill":
             MessageLookupByLibrary.simpleMessage("Duration take pill"),
         "fri": MessageLookupByLibrary.simpleMessage("Fri"),
-        "hello": m0,
+        "hello": m1,
+        "hour_option": m2,
         "i_took": MessageLookupByLibrary.simpleMessage("I took this pill"),
         "list_pill": MessageLookupByLibrary.simpleMessage("List off pill"),
         "mon": MessageLookupByLibrary.simpleMessage("Mon"),
@@ -40,6 +46,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "name_pill": MessageLookupByLibrary.simpleMessage("Name off pill"),
         "next": MessageLookupByLibrary.simpleMessage("Next"),
         "next_ball": MessageLookupByLibrary.simpleMessage("The next ball"),
+        "number": MessageLookupByLibrary.simpleMessage("Number take pill"),
         "prev_ball": MessageLookupByLibrary.simpleMessage("The previous ball"),
         "reminder_take":
             MessageLookupByLibrary.simpleMessage("Reminder to take medicine!"),

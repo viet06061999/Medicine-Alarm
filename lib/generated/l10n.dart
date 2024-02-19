@@ -339,6 +339,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Number take pill`
+  String get number {
+    return Intl.message(
+      'Number take pill',
+      name: 'number',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{hour} hours`
+  String hour_option(int hour) {
+    return Intl.message(
+      '$hour hours',
+      name: 'hour_option',
+      desc: '',
+      args: [hour],
+    );
+  }
+
+  /// `{count} times`
+  String count_option(int count) {
+    return Intl.message(
+      '$count times',
+      name: 'count_option',
+      desc: '',
+      args: [count],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

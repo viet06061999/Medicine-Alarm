@@ -6,7 +6,7 @@ import 'model/day_in_week.dart';
 
 class SelectWeekDays extends StatefulWidget {
   /// [onSelect] callBack to handle the Selected days
-  final Function onSelect;
+  final Function(List<String>) onSelect;
 
   /// List of days of type `DayInWeek`
   final List<String> days;
@@ -61,32 +61,29 @@ class SelectWeekDaysState extends State<SelectWeekDays> {
   final List<DayInWeek> _daysInWeek = [
     DayInWeek(
       S.current.all,
-      dayKey: S.current.all,
+      dayKey: "0",
     ),
     DayInWeek(
       S.current.sun,
-      dayKey: S.current.sun,
+      dayKey: "7",
     ),
     DayInWeek(
       S.current.mon,
-      dayKey: S.current.mon,
+      dayKey: "1",
     ),
-    DayInWeek(S.current.tue, dayKey: S.current.tue),
-    DayInWeek(
-      S.current.wed,
-      dayKey: S.current.wed,
-    ),
+    DayInWeek(S.current.tue, dayKey: "2"),
+    DayInWeek(S.current.wed, dayKey: "3"),
     DayInWeek(
       S.current.thu,
-      dayKey: S.current.thu,
+      dayKey: "4",
     ),
     DayInWeek(
       S.current.fri,
-      dayKey: S.current.fri,
+      dayKey: "5",
     ),
     DayInWeek(
       S.current.sat,
-      dayKey: S.current.sat,
+      dayKey: "6",
     ),
   ];
 
@@ -148,7 +145,7 @@ class SelectWeekDaysState extends State<SelectWeekDays> {
                 onPressed: widget.enable
                     ? () {
                         setState(() {
-                          if (day.dayKey == S.current.all) {
+                          if (day.dayKey == "0") {
                             for (DayInWeek dayInWeek in _daysInWeek) {
                               dayInWeek.isSelected = false;
                             }

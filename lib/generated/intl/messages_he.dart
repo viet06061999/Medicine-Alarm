@@ -20,17 +20,23 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'he';
 
-  static String m0(name) => "שלום ${name}!";
+  static String m0(count) => "${count} פעמים";
+
+  static String m1(name) => "שלום ${name}!";
+
+  static String m2(hour) => "${hour} שעות";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "all": MessageLookupByLibrary.simpleMessage("את כל"),
         "app_name": MessageLookupByLibrary.simpleMessage("תזכורת תרופות"),
+        "count_option": m0,
         "day_of_week": MessageLookupByLibrary.simpleMessage("יום בשבוע"),
         "describe": MessageLookupByLibrary.simpleMessage("לְתַאֵר"),
         "duration_pill": MessageLookupByLibrary.simpleMessage("משך לקחת גלולה"),
         "fri": MessageLookupByLibrary.simpleMessage("ום ו"),
-        "hello": m0,
+        "hello": m1,
+        "hour_option": m2,
         "i_took": MessageLookupByLibrary.simpleMessage("לקחתי את הכדור הזה"),
         "list_pill": MessageLookupByLibrary.simpleMessage("רשימת הגלולה"),
         "mon": MessageLookupByLibrary.simpleMessage("ום ב"),
@@ -38,6 +44,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "name_pill": MessageLookupByLibrary.simpleMessage("שם הגלולה"),
         "next": MessageLookupByLibrary.simpleMessage("הַבָּא"),
         "next_ball": MessageLookupByLibrary.simpleMessage("הכדור הבא"),
+        "number": MessageLookupByLibrary.simpleMessage("מספר לקחת גלולה"),
         "prev_ball": MessageLookupByLibrary.simpleMessage("הכדור הקודם"),
         "reminder_take":
             MessageLookupByLibrary.simpleMessage("תזכורת לקחת תרופהn!"),

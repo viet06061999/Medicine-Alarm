@@ -66,11 +66,12 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: InkResponse(
         onTap: () {
           // go to new entry page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NewEntryPage(),
-            ),
+          showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (BuildContext context) {
+              return const NewEntryPage();
+            },
           );
         },
         child: SizedBox(

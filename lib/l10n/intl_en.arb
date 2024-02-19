@@ -34,5 +34,22 @@
   "wed": "Wed",
   "thu": "Thu",
   "fri": "Fri",
-  "sat": "Sat"
+  "sat": "Sat",
+  "number": "Number take pill",
+  "hour_option": "{hour} hours",
+  "@hour_option": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "count_option": "{count} times",
+  "@count_option": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

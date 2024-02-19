@@ -4,8 +4,10 @@ import 'package:medicine_alarm/constants.dart';
 import 'package:medicine_alarm/generated/l10n.dart';
 import 'package:medicine_alarm/global_bloc.dart';
 import 'package:medicine_alarm/models/medicine.dart';
-import 'package:medicine_alarm/widgets/day_picker/model/day_in_week.dart';
 import 'package:medicine_alarm/widgets/day_picker/select_day.dart';
+import 'package:medicine_alarm/widgets/item_time.dart';
+import 'package:medicine_alarm/widgets/select_day.dart';
+import 'package:medicine_alarm/widgets/text_field_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -161,9 +163,9 @@ class _MedicineDetailsState extends State<MedicineDetails> {
               const SizedBox(
                 height: 16,
               ),
-              buildItem('assets/icons/medicine-icon.svg', S.current.name_pill,
-                  widget.medicine.getName, nameController,
-                  focus: focusNode),
+              TextFieldWidget('assets/icons/medicine-icon.svg',
+                  S.current.name_pill, widget.medicine.getName, nameController,
+                  isEditing: isEditing),
               const SizedBox(
                 height: 16,
               ),
@@ -171,160 +173,35 @@ class _MedicineDetailsState extends State<MedicineDetails> {
               const SizedBox(
                 height: 16,
               ),
-              buildItemTime(
-                  "assets/icons/alarm-icon.svg",
-                  S.current.duration_pill,
-                  "${widget.medicine.getInterval <= 9 ? "0${widget.medicine.getInterval}" : widget.medicine.getInterval}:00",
-                  35.w),
+              buildTakePill(),
               const SizedBox(
                 height: 16,
               ),
-              buildWeek(),
+              SelectDayWeek(
+                enable: false,
+                onSelect: (values) {},
+                days: widget.medicine.days,
+              ),
               const SizedBox(
                 height: 6,
               ),
-              buildItem(
-                'assets/icons/file-black-icon.svg',
-                S.current.list_pill,
-                widget.medicine.listPill,
-                listPillController,
-              ),
+              TextFieldWidget(
+                  'assets/icons/file-black-icon.svg',
+                  S.current.list_pill,
+                  widget.medicine.listPill,
+                  listPillController),
               const SizedBox(
                 height: 16,
               ),
-              buildItem(
-                "assets/icons/instruction-manuals-book-icon.svg",
-                S.current.describe,
-                widget.medicine.description,
-                desController,
-                line: 3
-              ),
+              TextFieldWidget(
+                  "assets/icons/instruction-manuals-book-icon.svg",
+                  S.current.describe,
+                  widget.medicine.description,
+                  desController),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget buildItem(
-    String icon,
-    String title,
-    String? content,
-    TextEditingController? controller, {
-    int line = 1,
-    FocusNode? focus,
-  }) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SvgPicture.asset(
-          icon,
-          height: 24,
-        ),
-        const SizedBox(
-          width: 12,
-        ),
-        SizedBox(
-          width: 80.w,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: kOrange),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              FocusScope(
-                child: TextFormField(
-                  controller: controller,
-                  readOnly: !isEditing,
-                  focusNode: focus,
-                  autofocus: true,
-                  maxLines: null,
-                  minLines: line,
-                  decoration: InputDecoration(
-                    hintText: content ?? title,
-                    hintStyle: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: kHint),
-                    enabledBorder: outLineBorder,
-                    disabledBorder: outLineBorder,
-                    focusedBorder: outLineBorder,
-                    errorBorder: outLineBorder,
-                    focusedErrorBorder: outLineBorder,
-                    filled: true,
-                    fillColor: kBackground,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  ),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: kPrimaryColor),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildItemTime(
-      String icon, String title, String content, double width) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SvgPicture.asset(
-          icon,
-          height: 24,
-        ),
-        const SizedBox(
-          width: 8,
-        ),
-        SizedBox(
-          width: width,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: kOrange),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5.0),
-                    color: kPrimaryColor),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                child: Text(
-                  content,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: Colors.white),
-                ),
-              )
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -335,49 +212,97 @@ class _MedicineDetailsState extends State<MedicineDetails> {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          buildItemTime("assets/icons/alarm-icon-1.svg", S.current.start_time,
-              widget.medicine.getStartTimeStr, 35.w),
-          buildItemTime("assets/icons/bedtime-icon.svg", S.current.time_bed,
-              widget.medicine.getStartTimeStr, 35.w),
+          ItemTime(
+            context: context,
+            icon: "assets/icons/alarm-icon-1.svg",
+            title: S.current.start_time,
+            width: 35.w,
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: kPrimaryColor),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+              child: Text(
+                widget.medicine.getStartTimeStr,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Colors.white),
+              ),
+            ),
+          ),
+          ItemTime(
+            context: context,
+            icon: "assets/icons/bedtime-icon.svg",
+            title: S.current.time_bed,
+            width: 35.w,
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: kPrimaryColor),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+              child: Text(
+                widget.medicine.geBedTimeStr,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Colors.white),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget buildWeek() {
-    return Column(children: [
-      Row(
+  Widget buildTakePill() {
+    return SizedBox(
+      width: 94.w,
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SvgPicture.asset(
-            "assets/icons/monthly-icon.svg",
-            height: 24,
+          ItemTime(
+            context: context,
+            icon: "assets/icons/alarm-icon.svg",
+            title: S.current.duration_pill,
+            width: 35.w,
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: kPrimaryColor),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+              child: Text(
+                "${widget.medicine.getInterval <= 9 ? "0${widget.medicine.getInterval}" : widget.medicine.getInterval}:00",
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Colors.white),
+              ),
+            ),
           ),
-          const SizedBox(
-            width: 8,
-          ),
-          Text(
-            S.current.day_of_week,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: kOrange),
+          ItemTime(
+            context: context,
+            icon: "assets/icons/counting.svg",
+            title: S.current.number,
+            width: 35.w,
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: kPrimaryColor),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+              child: Text(
+                S.current.count_option(widget.medicine.number ?? 0),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Colors.white),
+              ),
+            ),
           ),
         ],
       ),
-      // const SizedBox(
-      //   height: 8,
-      // ),
-      SelectWeekDays(
-        fontSize: 13,
-        padding: 24,
-        fontWeight: FontWeight.w500,
-        days: [S.current.all],
-        onSelect: (values) {
-          // <== Callback to handle the selected days
-          print(values);
-        },
-      )
-    ]);
+    );
   }
 
   //lets delete a medicine from memory

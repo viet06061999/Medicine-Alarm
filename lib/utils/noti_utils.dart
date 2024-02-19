@@ -1,16 +1,16 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
+import 'package:medicine_alarm/constants.dart';
+import 'package:medicine_alarm/models/medicine.dart';
+
+import 'time_utils.dart';
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
   Future<void> initNotification() async {
-
     var initializationSettingsAndroid =
-    const AndroidInitializationSettings('ic_launcher');
+        const AndroidInitializationSettings('ic_launcher');
 
     var initializationSettingsIOS = DarwinInitializationSettings(
         requestAlertPermission: true,
@@ -22,10 +22,14 @@ class NotificationService {
     var initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
 
-    await notificationsPlugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
-    await notificationsPlugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()?.requestExactAlarmsPermission();
+    await notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+    await notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestExactAlarmsPermission();
     await notificationsPlugin.initialize(initializationSettings,
         onDidReceiveNotificationResponse:
             (NotificationResponse notificationResponse) async {});
@@ -33,8 +37,16 @@ class NotificationService {
 
   notificationDetails() {
     return const NotificationDetails(
-        android: AndroidNotificationDetails('channelId', 'channelName',
-            importance: Importance.max),
+        android: AndroidNotificationDetails(
+            'repeatDailyAtTime channel id', 'repeatDailyAtTime channel name',
+            importance: Importance.max,
+            ledColor: kOtherColor,
+            priority: Priority.high,
+            category: AndroidNotificationCategory.reminder,
+            ledOffMs: 1000,
+            // fullScreenIntent: true,
+            ledOnMs: 1000,
+            enableLights: true),
         iOS: DarwinNotificationDetails());
   }
 
@@ -44,41 +56,39 @@ class NotificationService {
         id, title, body, await notificationDetails());
   }
 
-  Future scheduleNotification(
-      {int id = 0,
-      String? title,
-      String? body,
-      String? payLoad,
-      required TimeOfDay scheduledNotificationDateTime}) async {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+  Future<void> scheduleNotification(Medicine medicine) async {
+    for (var day in medicine.days) {
+      var txTime = TimeUtils.createTZDateTimeForDayOfWeek(
+          int.parse(day), medicine.startTime);
+      print('schedule weekly at $txTime');
+      await notificationsPlugin.zonedSchedule(
+          int.parse(day),
+          'Reminder weekly: ${medicine.medicineName}',
+          'It is time to take your medicine, according to schedule',
+          txTime,
+          notificationDetails(),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
+    }
+  }
 
-    var t = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      scheduledNotificationDateTime.hour,
-      scheduledNotificationDateTime.minute,
-    );
-    print(t);
-    await notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
-    await notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestExactAlarmsPermission();
-    return notificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      t,
-      await notificationDetails(),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      // matchDateTimeComponents: DateTimeComponents.time
-    );
+  Future<void> scheduleNextNotification(Medicine medicine) async {
+    for (var day in medicine.days) {
+      var txTime = TimeUtils.createTZDateTimeNext(medicine.getInterval);
+
+      print('schedule at ${txTime}');
+      await notificationsPlugin.zonedSchedule(
+          int.parse(day),
+          'Reminder: ${medicine.medicineName}',
+          'It is time to take your medicine, according to schedule',
+          txTime,
+          notificationDetails(),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
+    }
   }
 }

@@ -4,6 +4,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/errors.dart';
 import 'models/medicine.dart';
+import 'utils/noti_utils.dart';
 import 'utils/time_utils.dart';
 
 class GlobalBloc {
@@ -56,8 +57,7 @@ class GlobalBloc {
     SharedPreferences sharedUser = await SharedPreferences.getInstance();
 
     var blockList = _medicineList$!.value;
-    var element = blockList.firstWhere(
-            (e) => medicine.id == e.id);
+    var element = blockList.firstWhere((e) => medicine.id == e.id);
     var lastPick = element.pickTimes?.last;
     var isNotPick = lastPick == null ||
         TimeUtils.isBeforeStart(lastPick, element.startTime!);
@@ -65,9 +65,11 @@ class GlobalBloc {
       element.pickTimes = [];
     }
     element.pickTimes?.add(DateTime.now());
-    List<String> medicineJsonList = blockList.map((e) => jsonEncode(e.toJson())).toList();
+    List<String> medicineJsonList =
+        blockList.map((e) => jsonEncode(e.toJson())).toList();
     sharedUser.setStringList('medicines', medicineJsonList);
     _medicineList$!.add(blockList);
+    NotificationService().scheduleNextNotification(medicine);
   }
 
   Future updateMedicineList(Medicine newMedicine) async {
@@ -109,17 +111,17 @@ class GlobalBloc {
   Future fetchUser() async {
     SharedPreferences? sharedUser = await SharedPreferences.getInstance();
     var user = sharedUser.getString('user');
-    if(user!=null) {
+    if (user != null) {
       _userName$?.add(user);
     }
   }
 
   Future updateUser(String? user) async {
-      if(user != null) {
-        SharedPreferences? sharedUser = await SharedPreferences.getInstance();
-        sharedUser.setString('user', user);
-        _userName$?.add(user);
-      }
+    if (user != null) {
+      SharedPreferences? sharedUser = await SharedPreferences.getInstance();
+      sharedUser.setString('user', user);
+      _userName$?.add(user);
+    }
   }
 
   void dispose() {

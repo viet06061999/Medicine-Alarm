@@ -34,5 +34,22 @@
   "wed": "ום ד",
   "thu": "ום ה",
   "fri": "ום ו",
-  "sat": "ום ש"
+  "sat": "ום ש",
+  "number": "מספר לקחת גלולה",
+  "hour_option": "{hour} שעות",
+  "@hour_option": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "count_option": "{count} פעמים",
+  "@count_option": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

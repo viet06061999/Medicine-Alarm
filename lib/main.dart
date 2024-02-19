@@ -55,10 +55,16 @@ class _MyAppState extends State<MyApp> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: S.delegate.supportedLocales,          //theme customization
+          supportedLocales: S.delegate.supportedLocales,
+          //theme customization
           theme: ThemeData.dark().copyWith(
             primaryColor: kPrimaryColor,
             scaffoldBackgroundColor: kScaffoldColor,
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: kPrimaryColor
+              ),
+            ),
             //appbar theme
             appBarTheme: AppBarTheme(
               toolbarHeight: 7.h,
@@ -97,14 +103,18 @@ class _MyAppState extends State<MyApp> {
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.0,
               ),
-              titleMedium:
-              GoogleFonts.openSans(fontSize: 12.sp, fontWeight: FontWeight.w500, color: kTextPrime),
-              titleSmall:
-              GoogleFonts.openSans(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
+              titleMedium: GoogleFonts.openSans(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  color: kTextPrime),
+              titleSmall: GoogleFonts.openSans(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black),
               bodySmall: GoogleFonts.openSans(
                 fontSize: 9.sp,
                 fontWeight: FontWeight.w400,
-                color: kTextLightColor,
+                color: kTextColor,
               ),
               labelMedium: GoogleFonts.openSans(
                 fontSize: 10.sp,
@@ -140,6 +150,12 @@ class _MyAppState extends State<MyApp> {
               dayPeriodTextStyle: GoogleFonts.aBeeZee(
                 fontSize: 8.sp,
               ),
+              helpTextStyle: GoogleFonts.openSans(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: kTextColor,
+              ),
+
             ),
           ),
           home: StreamBuilder(
