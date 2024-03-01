@@ -5,9 +5,11 @@ import 'package:medicine_alarm/global_bloc.dart';
 import 'package:medicine_alarm/models/medicine.dart';
 import 'package:medicine_alarm/pages/medicine_details/medicine_details.dart';
 import 'package:medicine_alarm/pages/new_entry/new_entry_page.dart';
+import 'package:medicine_alarm/utils/noti_utils.dart';
 import 'package:medicine_alarm/utils/time_utils.dart';
 import 'package:medicine_alarm/widgets/countdown_timer.dart';
 import 'package:medicine_alarm/widgets/custom_progress.dart';
+import 'package:medicine_alarm/widgets/empty_widget.dart';
 import 'package:one_clock/one_clock.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -38,9 +40,9 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: kPrimaryColor,
         actions: [
           IconButton(
-              onPressed: () {
+              onPressed: () async {
                 if (selectedMed != null) {
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) {
@@ -48,6 +50,9 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   );
+                  setState(() {
+                    selectedMed = null;
+                  });
                 }
               },
               icon: const Icon(
@@ -113,7 +118,9 @@ class _HomePageState extends State<HomePage> {
             stream: globalBloc?.medicineList$,
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data?.isNotEmpty == true) {
-                selectedMed ??= snapshot.data?.first;
+                if (snapshot.data?.contains(selectedMed) == false) {
+                  selectedMed = snapshot.data?.first;
+                }
                 return Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,23 +161,36 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(
                         height: 16,
                       ),
-                      buildProgress(),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      buildTook(),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      buildWhenDid(),
-                      const SizedBox(
-                        height: 16,
-                      ),
+                      if (selectedMed!.getActive()) ...[
+                        buildProgress(),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        buildTook(),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        buildWhenDid(),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                      ] else ...[
+                        Text(
+                          S.current.dont_take,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 10.h,
+                        )
+                      ]
                     ],
                   ),
                 );
               }
-              return const Text("empty");
+              return const Expanded(child: EmptyWidget());
             })
       ],
     );
@@ -319,157 +339,203 @@ class _HomePageState extends State<HomePage> {
     if (selectedMed == null) {
       return Container();
     }
-    var last = selectedMed!.pickTimes?.last ?? DateTime.now();
+    var last = selectedMed!.pickTimes?.isNotEmpty == true
+        ? selectedMed!.pickTimes!.last
+        : DateTime.now();
     return Column(
-      children: [
-        isBefore()
-            ? Text(
-                S.current.wait_pick,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: Colors.black),
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [buildActiveProgress(last)],
+    );
+  }
+
+  Widget buildActiveProgress(DateTime last) {
+    return isBefore()
+        ? Text(
+            S.current.wait_pick,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(color: Colors.black),
+          )
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 20.w,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                              color: kPrimaryColor),
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Text(
-                              TimeUtils.convertTime(TimeUtils.pattern_4, last),
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(color: Colors.white)),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 158,
-                        height: 158,
-                        child: Stack(
-                          children: [
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 2),
-                                child: Image.asset(
-                                  'assets/images/progress.jpg',
-                                  fit: BoxFit.cover,
-                                  width: 151,
-                                  height: 151,
-                                ),
-                              ),
-                            ),
-                            Center(
-                              child: CountdownTimer(
-                                startTime: last,
-                                durationInHours: selectedMed!.interval ?? 0,
-                                onCount: () {
-                                  if (mounted) {
-                                    setState(() {});
-                                  }
-                                },
-                              ),
-                            ),
-                            Center(
-                              child: SizedBox(
-                                width: 158,
-                                height: 158,
-                                child: CustomProgressWidget(
-                                  strokeWidth: 18.5,
-                                  progress:
-                                      (DateTime.now().millisecondsSinceEpoch -
-                                              last.millisecondsSinceEpoch) *
-                                          100 /
-                                          (selectedMed!.getInterval * 3600000),
-                                  progressColor: kPrimaryColor,
-                                  incompleteColor: Colors.transparent,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: 20.w,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                              color: kPrimaryColor),
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Text(
-                              TimeUtils.convertTime(
-                                  TimeUtils.pattern_4,
-                                  last.add(Duration(
-                                      hours: selectedMed!.getInterval))),
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(color: Colors.white)),
-                        ),
-                      ),
-                    ],
+                  SizedBox(
+                    width: 20.w,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(5.0),
+                          color: kPrimaryColor),
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                          TimeUtils.convertTime(TimeUtils.pattern_4, last),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(color: Colors.white)),
+                    ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 22.w,
-                        child: Text(S.current.prev_ball,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleSmall),
-                      ),
-                      Container(
-                        width: 22.w,
-                        margin: EdgeInsets.only(right: 2.w),
-                        child: Text(S.current.time_left,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleSmall),
-                      ),
-                      SizedBox(
-                        width: 20.w,
-                        child: Text(S.current.next_ball,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleSmall),
-                      )
-                    ],
-                  )
+                  SizedBox(
+                    width: 158,
+                    height: 158,
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 2),
+                            child: Image.asset(
+                              'assets/images/progress.jpg',
+                              fit: BoxFit.cover,
+                              width: 151,
+                              height: 151,
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: CountdownTimer(
+                            startTime: last,
+                            nextTime: selectedMed!.next,
+                            onCount: () {
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                            done: selectedMed!.doneToday(),
+                          ),
+                        ),
+                        Center(
+                          child: SizedBox(
+                            width: 158,
+                            height: 158,
+                            child: CustomProgressWidget(
+                              strokeWidth: 18.5,
+                              progress: selectedMed!.doneToday()
+                                  ? 100
+                                  : (DateTime.now().millisecondsSinceEpoch -
+                                          last.millisecondsSinceEpoch) *
+                                      100 /
+                                      selectedMed!.totalTime,
+                              progressColor: kPrimaryColor,
+                              incompleteColor: Colors.transparent,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  selectedMed!.doneToday()
+                      ? SizedBox(
+                          width: 20.w,
+                          child: Text(S.current.wait_tomorrow,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleSmall),
+                        )
+                      : SizedBox(
+                          width: 20.w,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: kPrimaryColor),
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                                TimeUtils.convertTime(
+                                    TimeUtils.pattern_4, selectedMed!.next!),
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(color: Colors.white)),
+                          ),
+                        ),
                 ],
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 22.w,
+                    child: Text(S.current.prev_ball,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleSmall),
+                  ),
+                  Container(
+                    width: 22.w,
+                    margin: EdgeInsets.only(right: 2.w),
+                    child: Text(S.current.time_left,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleSmall),
+                  ),
+                  selectedMed!.doneToday()
+                      ? SizedBox(
+                          width: 20.w,
+                        )
+                      : SizedBox(
+                          width: 20.w,
+                          child: Text(S.current.next_ball,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleSmall),
+                        )
+                ],
+              )
+            ],
+          );
+  }
+
+  Widget buildTook() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+            onPressed: selectedMed!.pickTimes?.isNotEmpty == false
+                ? null
+                : () {
+                    NotificationService().openAlertBox(S.current.cancel_last,
+                        onPositive: () async {
+                      globalBloc?.cancelLastPill(selectedMed!);
+                      setState(() {});
+                    });
+                  },
+            icon: Icon(
+              Icons.cancel_presentation,
+              size: 32,
+              color: selectedMed!.pickTimes?.isNotEmpty == false
+                  ? Colors.black26
+                  : kPrimaryColor,
+            )),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 2.w),
+              disabledBackgroundColor: Colors.black26,
+              backgroundColor: kPrimaryColor),
+          onPressed: selectedMed!.doneToday()
+              ? null
+              : () {
+                  globalBloc?.tookPill(selectedMed!);
+                },
+          child: SizedBox(
+            width: 70.w,
+            child: Center(
+              child: Text(
+                S.current.i_took,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Widget buildTook() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
-      onPressed: () {
-        globalBloc?.tookPill(selectedMed!);
-      },
-      child: Text(
-        S.current.i_took,
-        style: Theme.of(context)
-            .textTheme
-            .titleLarge
-            ?.copyWith(color: Colors.white),
-      ),
-    );
-  }
-
   bool isBefore() {
-    var lastPick = selectedMed!.pickTimes?.last;
-    return lastPick == null ||
-        TimeUtils.isBeforeStart(lastPick, selectedMed!.startTime);
+    var lastPick = selectedMed!.last;
+    return lastPick == null;
   }
 }

@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../models/errors.dart';
-import '../../models/medicine_type.dart';
 
 class NewEntryBloc {
-  BehaviorSubject<int>? _selectedInterval$;
-
-  BehaviorSubject<int>? get selectIntervals => _selectedInterval$;
-
   BehaviorSubject<TimeOfDay?>? _selectedStartTime$;
 
   BehaviorSubject<TimeOfDay?>? get selectedStartTime$ => _selectedStartTime$;
@@ -21,24 +16,22 @@ class NewEntryBloc {
 
   BehaviorSubject<EntryError>? get errorState$ => _errorState$;
 
-  BehaviorSubject<List<String>>? _selectedDay$;
+  BehaviorSubject<List<String>?>? _selectedDay$;
 
-  BehaviorSubject<List<String>>? get selectedDay$ => _selectedDay$;
+  BehaviorSubject<List<String>?>? get selectedDay$ => _selectedDay$;
 
   BehaviorSubject<int>? _selectedCount$;
 
   BehaviorSubject<int>? get selectCount => _selectedCount$;
 
   NewEntryBloc() {
-    _selectedInterval$ = BehaviorSubject<int>.seeded(0);
     _selectedCount$ = BehaviorSubject<int>.seeded(0);
     _errorState$ = BehaviorSubject<EntryError>();
-    _selectedDay$ = BehaviorSubject<List<String>>();
+    _selectedDay$ = BehaviorSubject<List<String>?>.seeded(["0"]);
   }
 
   void dispose() {
     _selectedStartTime$?.close();
-    _selectedInterval$?.close();
     _selectedDay$?.close();
     _selectedEndTime$?.close();
   }
@@ -47,17 +40,8 @@ class NewEntryBloc {
     _errorState$!.add(error);
   }
 
-  void updateInterval(int interval) {
-    _selectedInterval$!.add(interval);
-  }
-
   void updateCount(int count) {
     _selectedCount$!.add(count);
-  }
-
-  String getInterval() {
-    var interval = _selectedInterval$?.value ?? 4;
-    return "${interval <= 9 ? "0$interval" : interval}:00";
   }
 
   void updateDaySelect(List<String> days) {

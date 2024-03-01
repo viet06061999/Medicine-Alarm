@@ -1,6 +1,6 @@
 {
   "app_name": "תזכורת תרופות",
-  "reminder_take": "תזכורת לקחת תרופהn!",
+  "reminder_take": "תזכורת לקחת תרופה!",
   "your_name": "השם שלך?",
   "next": "הַבָּא",
   "name_null": "נא להזין שם משתמש!",
@@ -51,5 +51,41 @@
         "type": "int"
       }
     }
-  }
+  },
+  "title_noti": "הגיע הזמן: {time} לקחת תרופה {med}",
+  "@title_noti": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "med": {
+        "type": "String"
+      }
+    }
+  },
+  "content_noti": "אל תשכח לסמן את זה כ\"לקחתי את הגלולה הזו\"",
+  "cancel": "לְבַטֵל",
+  "ok": "בסדר",
+  "yes": "כן",
+  "no": "לא",
+  "bedtime_before_title": "הגלולה האחרונה היא אחרי השינה!",
+  "bedtime_before_content": "האם אתה רוצה לערוך הגדרות?",
+  "bedtime_before_next_title": "הגלולה הבאה היא אחרי השינה!",
+  "bedtime_before_next_content": "האם אתה רוצה אזעקה הגלולה הבאה?",
+  "error_name_null": "נא להזין את שם התרופה",
+  "error_name_duplicate": "שם התרופה כבר קיים",
+  "error_interval": "אנא בחר את משך התזכורת",
+  "error_valid_start_time": "זמן השינה לא יכול להיות פחות משעת ההתחלה",
+  "no_alarm": "אין לך אזעקת תרופות!",
+  "create_new": "צור אזעקת תרופות חדשה!",
+  "wait_tomorrow": "מחכה לגלולה הראשונה של מחר!",
+  "dont_take": "אתה לא צריך לקחת את הגלולה הזו היום!",
+  "delete_medicine_title": "מחק את אזעקת התרופות!",
+  "delete_medicine": "האם אתה רוצה למחוק את אזעקת התרופה הזו?",
+  "cancel_last": "לבטל את הגלולה האחרונה?",
+  "add_pill": "הוסף גלולה",
+  "edit_pill": "ערוך גלולה",
+  "take_time": "מתי לקחת גלולה?",
+  "same_start": "יש לך עוד גלולה באותו זמן התחלה",
+  "want_change": "האם ברצונך לשנות את שעת ההתחלה?"
 }

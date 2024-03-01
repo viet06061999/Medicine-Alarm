@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'generated/l10n.dart';
 import 'models/errors.dart';
 import 'models/medicine.dart';
 import 'utils/noti_utils.dart';
@@ -26,21 +28,31 @@ class GlobalBloc {
     fetchUser();
   }
 
-  Future removeMedicine(Medicine tobeRemoved) async {
+  Medicine findById(int id) {
+    var blockList = _medicineList$!.value;
+    return blockList.firstWhere((e) => id == e.id);
+  }
+
+  Future<int> removeMedicine(Medicine tobeRemoved, {isUpdate = false}) async {
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     SharedPreferences sharedUser = await SharedPreferences.getInstance();
     List<String> medicineJsonList = [];
 
     var blockList = _medicineList$!.value;
+    var index = blockList.indexWhere(
+        (medicine) => medicine.medicineName == tobeRemoved.medicineName);
     blockList.removeWhere(
         (medicine) => medicine.medicineName == tobeRemoved.medicineName);
 
     //remove notifications,todo
-    for (int i = 0; i < (24 / tobeRemoved.interval!).floor(); i++) {
-      flutterLocalNotificationsPlugin
-          .cancel(int.parse(tobeRemoved.notificationIDs![i]));
+    for (var day in tobeRemoved.days) {
+      flutterLocalNotificationsPlugin.cancel(int.parse(day) + 1000);
+      if (!isUpdate) {
+        flutterLocalNotificationsPlugin.cancel(int.parse(day));
+      }
     }
+    flutterLocalNotificationsPlugin.cancel(tobeRemoved.id);
 
     if (blockList.isNotEmpty) {
       for (var blockMedicine in blockList) {
@@ -51,16 +63,14 @@ class GlobalBloc {
 
     sharedUser.setStringList('medicines', medicineJsonList);
     _medicineList$!.add(blockList);
+    return index;
   }
 
   Future tookPill(Medicine medicine) async {
     SharedPreferences sharedUser = await SharedPreferences.getInstance();
-
     var blockList = _medicineList$!.value;
     var element = blockList.firstWhere((e) => medicine.id == e.id);
-    var lastPick = element.pickTimes?.last;
-    var isNotPick = lastPick == null ||
-        TimeUtils.isBeforeStart(lastPick, element.startTime!);
+    var isNotPick = element.last == null;
     if (isNotPick) {
       element.pickTimes = [];
     }
@@ -69,14 +79,71 @@ class GlobalBloc {
         blockList.map((e) => jsonEncode(e.toJson())).toList();
     sharedUser.setStringList('medicines', medicineJsonList);
     _medicineList$!.add(blockList);
-    NotificationService().scheduleNextNotification(medicine);
+    NotificationService().cancelNow();
+    NotificationService()
+        .notificationsPlugin
+        .cancel(medicine.id + NotificationService.addNotification);
+
+    // var txTime = TimeUtils.createTZDateTimeNext(medicine.getInterval);
+    var needNoti = true;
+    // if (TimeUtils.getDateTime(medicine.bedTime).isBefore(txTime) &&
+    //     !element.doneToday()) {
+    //   await NotificationService().openAlertBox(
+    //       S.current.bedtime_before_next_title,
+    //       content: S.current.bedtime_before_next_content,
+    //       negative: S.current.no,
+    //       positive: S.current.yes, onNegative: () {
+    //     needNoti = false;
+    //     updateDone(medicine, true);
+    //   }, onPositive: () {
+    //     updateDone(medicine, false);
+    //   });
+    // }
+    if (needNoti) {
+      NotificationService().scheduleNextNotification(medicine);
+    }
   }
 
-  Future updateMedicineList(Medicine newMedicine) async {
-    var blocList = _medicineList$!.value;
-    blocList.add(newMedicine);
-    _medicineList$!.add(blocList);
+  Future cancelLastPill(Medicine medicine) async {
+    SharedPreferences sharedUser = await SharedPreferences.getInstance();
 
+    var blockList = _medicineList$!.value;
+    var element = blockList.firstWhere((e) => medicine.id == e.id);
+    var isNotPick = element.last == null;
+    if (isNotPick) {
+      return;
+    }
+    element.isDoneOfDay = false;
+    element.pickTimes?.removeLast();
+    if (element.pickTimes?.isNotEmpty == false) {
+      element.pickTimes = null;
+    }
+    List<String> medicineJsonList =
+        blockList.map((e) => jsonEncode(e.toJson())).toList();
+    sharedUser.setStringList('medicines', medicineJsonList);
+    _medicineList$!.add(blockList);
+    NotificationService().cancelNow();
+  }
+
+  Future updateDone(Medicine medicine, bool done) async {
+    SharedPreferences sharedUser = await SharedPreferences.getInstance();
+    var blockList = _medicineList$!.value;
+    var element = blockList.firstWhere((e) => medicine.id == e.id);
+    element.isDoneOfDay = done;
+    List<String> medicineJsonList =
+        blockList.map((e) => jsonEncode(e.toJson())).toList();
+    sharedUser.setStringList('medicines', medicineJsonList);
+    _medicineList$!.add(blockList);
+  }
+
+  Future updateMedicineList(Medicine newMedicine, {int? index}) async {
+    var blocList = _medicineList$!.value;
+    if (index != null) {
+      blocList.insert(index, newMedicine);
+    } else {
+      blocList.add(newMedicine);
+    }
+    _medicineList$!.add(blocList);
     Map<String, dynamic> tempMap = newMedicine.toJson();
     SharedPreferences? sharedUser = await SharedPreferences.getInstance();
     String newMedicineJson = jsonEncode(tempMap);
@@ -88,6 +155,14 @@ class GlobalBloc {
       medicineJsonList.add(newMedicineJson);
     }
     sharedUser.setStringList('medicines', medicineJsonList);
+  }
+
+  bool checkSameStart(TimeOfDay startTime, int? id) {
+    var blocList = _medicineList$!.value;
+    return blocList.any((element) =>
+        element.id != id &&
+        startTime.hour == element.startTime.hour &&
+        startTime.minute == element.startTime.minute);
   }
 
   Future makeMedicineList() async {

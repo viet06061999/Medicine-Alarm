@@ -1,10 +1,8 @@
 enum EntryError {
   nameDuplicate,
   nameNull,
-  dosage,
-  type,
   interval,
-  startTime,
+  validStartTime,
   none,
 }
 

@@ -1,16 +1,35 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:medicine_alarm/constants.dart';
+import 'package:medicine_alarm/generated/l10n.dart';
+import 'package:medicine_alarm/global_bloc.dart';
 import 'package:medicine_alarm/models/medicine.dart';
+import 'package:sizer/sizer.dart';
 
 import 'time_utils.dart';
 
 class NotificationService {
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  static final NotificationService _instance = NotificationService._internal();
+
+  static const int addNotification = 1000;
+  static const int weekNotification = 10001;
+
+  // Khai báo một hàm factory để trả về thể hiện duy nhất của NotificationService
+  factory NotificationService() {
+    return _instance;
+  }
+
+  // Hàm khởi tạo private để chỉ có thể được gọi từ bên trong lớp
+  NotificationService._internal();
+
   final FlutterLocalNotificationsPlugin notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
   Future<void> initNotification() async {
     var initializationSettingsAndroid =
-        const AndroidInitializationSettings('ic_launcher');
+        const AndroidInitializationSettings('ic_medication');
 
     var initializationSettingsIOS = DarwinInitializationSettings(
         requestAlertPermission: true,
@@ -31,8 +50,32 @@ class NotificationService {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.requestExactAlarmsPermission();
     await notificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse:
-            (NotificationResponse notificationResponse) async {});
+        onDidReceiveNotificationResponse: onDidReceive);
+  }
+
+  onDidReceive(NotificationResponse notificationResponse) async {
+    var id = notificationResponse.payload;
+    if (id == null) return;
+    var globalBloc = GlobalBloc();
+    var medicine = globalBloc.findById(int.parse(id));
+    var txTime = TimeUtils.createTZDateTimeNext(1);
+    print('onDidReceive next at $txTime');
+    await notificationsPlugin.zonedSchedule(
+        medicine.id + addNotification,
+        S.current.title_noti(
+            S.current.title_noti(
+                TimeUtils.convertTime(
+                        TimeUtils.pattern_4, medicine.next ?? DateTime.now()) ??
+                    "",
+                medicine.getName),
+            medicine.getName),
+        S.current.content_noti,
+        txTime,
+        notificationDetails(),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
   notificationDetails() {
@@ -44,51 +87,144 @@ class NotificationService {
             priority: Priority.high,
             category: AndroidNotificationCategory.reminder,
             ledOffMs: 1000,
+            sound: RawResourceAndroidNotificationSound("sound"),
+            playSound: true,
             // fullScreenIntent: true,
             ledOnMs: 1000,
             enableLights: true),
         iOS: DarwinNotificationDetails());
   }
 
-  Future showNotification(
-      {int id = 0, String? title, String? body, String? payLoad}) async {
-    return notificationsPlugin.show(
-        id, title, body, await notificationDetails());
-  }
-
   Future<void> scheduleNotification(Medicine medicine) async {
-    for (var day in medicine.days) {
-      var txTime = TimeUtils.createTZDateTimeForDayOfWeek(
-          int.parse(day), medicine.startTime);
-      print('schedule weekly at $txTime');
-      await notificationsPlugin.zonedSchedule(
-          int.parse(day),
-          'Reminder weekly: ${medicine.medicineName}',
-          'It is time to take your medicine, according to schedule',
+    if (medicine.days.length == 1 && medicine.days[0] == "0") {
+      for (TimeOfDay time in medicine.times ?? []) {
+        var txTime = TimeUtils.createTZDateTimeForDayOfWeek(0, time);
+        print('zonedSchedule at $txTime');
+        await notificationsPlugin.zonedSchedule(
+          medicine.id + time.hour,
+          S.current.title_noti(
+              TimeUtils.formatTimeOfDay(time: time) ?? "", medicine.getName),
+          S.current.content_noti,
           txTime,
           notificationDetails(),
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
+          matchDateTimeComponents: DateTimeComponents.time,
+          payload: medicine.id.toString(),
+        );
+      }
+    } else {
+      for (var day in medicine.days) {
+        for (TimeOfDay time in medicine.times ?? []) {
+          var txTime =
+              TimeUtils.createTZDateTimeForDayOfWeek(int.parse(day), time);
+          print('zonedSchedule at $txTime');
+          await notificationsPlugin.zonedSchedule(
+            medicine.id + int.parse(day) * 100 + weekNotification + time.hour,
+            S.current.title_noti(
+                TimeUtils.formatTimeOfDay(time: time) ?? "", medicine.getName),
+            S.current.content_noti,
+            txTime,
+            notificationDetails(),
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+            matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+            payload: medicine.id.toString(),
+          );
+        }
+      }
     }
   }
 
   Future<void> scheduleNextNotification(Medicine medicine) async {
-    for (var day in medicine.days) {
-      var txTime = TimeUtils.createTZDateTimeNext(medicine.getInterval);
+    // var id = DateTime.now().weekday;
+    // var txTime = TimeUtils.createTZDateTimeNext(medicine.getInterval);
+    // await notificationsPlugin.zonedSchedule(
+    //     id,
+    //     S.current.title_noti(
+    //         S.current.title_noti(
+    //             TimeUtils.convertTime(TimeUtils.pattern_4, txTime) ?? "",
+    //             medicine.getName),
+    //         medicine.getName),
+    //     S.current.content_noti,
+    //     txTime,
+    //     notificationDetails(),
+    //     androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    //     uiLocalNotificationDateInterpretation:
+    //         UILocalNotificationDateInterpretation.absoluteTime,
+    //     matchDateTimeComponents: DateTimeComponents.dateAndTime);
+  }
 
-      print('schedule at ${txTime}');
-      await notificationsPlugin.zonedSchedule(
-          int.parse(day),
-          'Reminder: ${medicine.medicineName}',
-          'It is time to take your medicine, according to schedule',
-          txTime,
-          notificationDetails(),
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
+  void cancelNow() {
+    var id = DateTime.now().weekday;
+    notificationsPlugin.cancel(id);
+  }
+
+  Future openAlertBox(String title,
+      {String? content,
+      String? negative,
+      String? positive,
+      Function? onNegative,
+      Function? onPositive}) async {
+    if (NotificationService.navigatorKey.currentContext == null) {
+      return;
     }
+    return await showDialog(
+      barrierDismissible: false,
+      context: NotificationService.navigatorKey.currentContext!,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: kScaffoldColor,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          contentPadding: EdgeInsets.only(top: 1.h, left: 1.h, right: 1.h),
+          actionsPadding: EdgeInsets.only(top: 1.h),
+          title: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          content: content != null
+              ? Text(
+                  content,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: kOrange),
+                )
+              : null,
+          actions: [
+            TextButton(
+              onPressed: () {
+                onNegative?.call();
+                Navigator.pop(context);
+              },
+              child: Text(
+                negative ?? S.current.cancel,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                //global block to delete medicine,later
+                onPositive?.call();
+                Navigator.pop(context);
+              },
+              child: Text(
+                positive ?? S.current.ok,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

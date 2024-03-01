@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medicine_alarm/constants.dart';
 import 'package:medicine_alarm/generated/l10n.dart';
@@ -12,13 +11,13 @@ import 'package:medicine_alarm/pages/new_entry/new_entry_bloc.dart';
 import 'package:medicine_alarm/pages/success_screen/success_screen.dart';
 import 'package:medicine_alarm/utils/noti_utils.dart';
 import 'package:medicine_alarm/utils/time_utils.dart';
+import 'package:medicine_alarm/widgets/alarm_time.dart';
 import 'package:medicine_alarm/widgets/item_time.dart';
 import 'package:medicine_alarm/widgets/select_day.dart';
 import 'package:medicine_alarm/widgets/select_time.dart';
 import 'package:medicine_alarm/widgets/text_field_widget.dart';
 import 'package:sizer/sizer.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 
 class NewEntryPage extends StatefulWidget {
   const NewEntryPage({Key? key}) : super(key: key);
@@ -36,6 +35,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
   GlobalBloc? globalBloc;
   TimeOfDay? startTime;
   TimeOfDay? endTime;
+  List<TimeOfDay> timeAlarms = [];
 
   void _selectStartTime(TimeOfDay? picked) async {
     if (picked != null && picked != startTime) {
@@ -124,68 +124,60 @@ class _NewEntryPageState extends State<NewEntryPage> {
                       const SizedBox(
                         height: 16,
                       ),
-                      SizedBox(
-                        width: 94.w,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ItemTime(
-                              context: context,
-                              icon: "assets/icons/alarm-icon-1.svg",
-                              title: S.current.start_time,
-                              width: 35.w,
-                              child: SelectTime(
-                                onSelect: _selectStartTime,
-                                time: _newEntryBloc.selectedStartTime$?.value,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                      color: kPrimaryColor),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 12),
-                                  child: Text(
-                                    TimeUtils.formatTimeOfDay(
-                                            time: _newEntryBloc
-                                                .selectedStartTime$?.value,
-                                            defaultText: "00:00") ??
-                                        "",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(color: Colors.white),
-                                  ),
-                                ),
-                              ),
+                      ItemTime(
+                        context: context,
+                        icon: "assets/icons/alarm-icon-1.svg",
+                        title: S.current.start_time,
+                        child: SelectTime(
+                          onSelect: _selectStartTime,
+                          time: _newEntryBloc.selectedStartTime$?.value,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: kPrimaryColor),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 12),
+                            child: Text(
+                              TimeUtils.formatTimeOfDay(
+                                      time: _newEntryBloc
+                                          .selectedStartTime$?.value,
+                                      defaultText: "00:00") ??
+                                  "",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(color: Colors.white),
                             ),
-                            ItemTime(
-                              context: context,
-                              icon: "assets/icons/bedtime-icon.svg",
-                              title: S.current.time_bed,
-                              width: 35.w,
-                              child: SelectTime(
-                                onSelect: _selectEndTime,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                      color: kPrimaryColor),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 12),
-                                  child: Text(
-                                    TimeUtils.formatTimeOfDay(
-                                            time: _newEntryBloc
-                                                .selectedEndTime$?.value,
-                                            defaultText: "23:59") ??
-                                        "",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(color: Colors.white),
-                                  ),
-                                ),
-                              ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      ItemTime(
+                        context: context,
+                        icon: "assets/icons/bedtime-icon.svg",
+                        title: S.current.time_bed,
+                        child: SelectTime(
+                          onSelect: _selectEndTime,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: kPrimaryColor),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 12),
+                            child: Text(
+                              TimeUtils.formatTimeOfDay(
+                                      time:
+                                          _newEntryBloc.selectedEndTime$?.value,
+                                      defaultText: "23:59") ??
+                                  "",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(color: Colors.white),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -193,71 +185,45 @@ class _NewEntryPageState extends State<NewEntryPage> {
                       ),
                       SizedBox(
                         width: 94.w,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IntervalSelection(
-                              onSelected: (value) {
-                                setState(() {
-                                  _newEntryBloc.updateInterval(value);
-                                });
-                              },
-                              getText: S.current.hour_option,
-                              intervals: const [2, 4, 6, 8, 12, 24],
-                              child: ItemTime(
-                                context: context,
-                                icon: "assets/icons/alarm-icon.svg",
-                                title: S.current.duration_pill,
-                                width: 35.w,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                      color: kPrimaryColor),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 12),
-                                  child: Text(
-                                    _newEntryBloc.getInterval(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(color: Colors.white),
-                                  ),
-                                ),
+                        child: IntervalSelection(
+                          onSelected: (value) {
+                            setState(() {
+                              _newEntryBloc.updateCount(value);
+                            });
+                          },
+                          getText: S.current.count_option,
+                          intervals: const [1, 2, 3, 4, 5, 6],
+                          child: ItemTime(
+                            context: context,
+                            icon: "assets/icons/counting.svg",
+                            title: S.current.number,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  color: kPrimaryColor),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 12),
+                              child: Text(
+                                S.current.count_option(
+                                    _newEntryBloc.selectCount?.value ?? 0),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: Colors.white),
                               ),
                             ),
-                            IntervalSelection(
-                              onSelected: (value) {
-                                setState(() {
-                                  _newEntryBloc.updateCount(value);
-                                });
-                              },
-                              getText: S.current.count_option,
-                              intervals: const [1, 2, 3, 4, 5, 6],
-                              child: ItemTime(
-                                context: context,
-                                icon: "assets/icons/counting.svg",
-                                title: S.current.number,
-                                width: 35.w,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                      color: kPrimaryColor),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 12),
-                                  child: Text(
-                                    S.current.count_option(
-                                        _newEntryBloc.selectCount?.value ?? 0),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
+                      ),
+                      AlarmTime(
+                        startTime: _newEntryBloc.selectedStartTime$?.value ??
+                            const TimeOfDay(hour: 0, minute: 0),
+                        endTime: _newEntryBloc.selectedEndTime$?.value ??
+                            const TimeOfDay(hour: 23, minute: 59),
+                        count: _newEntryBloc.selectCount?.value ?? 0,
+                        onTime: (times) {
+                          timeAlarms = times;
+                        },
                       ),
                       const SizedBox(
                         height: 16,
@@ -297,7 +263,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
     );
   }
 
-  onConfirm() {
+  onConfirm() async {
     //add medicine
     //some validations
     //go to success screen
@@ -318,38 +284,57 @@ class _NewEntryPageState extends State<NewEntryPage> {
         return;
       }
     }
-    if (_newEntryBloc.selectIntervals!.value == 0) {
-      _newEntryBloc.submitError(EntryError.interval);
-      return;
-    }
-    if (_newEntryBloc.selectedStartTime$?.value == null) {
-      _newEntryBloc.submitError(EntryError.startTime);
-      return;
-    }
-    int interval = _newEntryBloc.selectIntervals!.value;
     int number = _newEntryBloc.selectCount!.value;
-    TimeOfDay? startTime = _newEntryBloc.selectedStartTime$!.value;
-    TimeOfDay? bedTime = _newEntryBloc.selectedEndTime$!.value;
+    TimeOfDay startTime = _newEntryBloc.selectedStartTime$?.value ??
+        const TimeOfDay(hour: 00, minute: 00);
+    TimeOfDay bedTime = _newEntryBloc.selectedEndTime$?.value ??
+        const TimeOfDay(hour: 23, minute: 59);
     List<String> days = _newEntryBloc.selectedDay$?.value ?? [];
+    var needEdit = false;
+    if (!TimeUtils.isValidStart(startTime, bedTime)) {
+      _newEntryBloc.submitError(EntryError.validStartTime);
+      return;
+    }
+    // if (TimeUtils.isAfterEnd(startTime, bedTime, interval, number)) {
+    //   await NotificationService().openAlertBox(S.current.bedtime_before_title,
+    //       content: S.current.bedtime_before_content,
+    //       negative: S.current.no,
+    //       positive: S.current.yes, onPositive: () {
+    //     needEdit = true;
+    //   });
+    // }
 
-    Medicine newEntryMedicine = Medicine(const Uuid().v4(), days,
+    if (globalBloc?.checkSameStart(startTime, null) == true) {
+      await NotificationService().openAlertBox(S.current.same_start,
+          content: S.current.want_change,
+          negative: S.current.no,
+          positive: S.current.yes, onPositive: () {
+        needEdit = true;
+      });
+    }
+
+    if (needEdit) {
+      return;
+    }
+    Medicine newEntryMedicine = Medicine(Random().nextInt(99999999), days,
         notificationIDs: days,
         medicineName: medicineName,
-        interval: interval,
         number: number,
-        startTime: startTime ?? const TimeOfDay(hour: 00, minute: 00),
-        bedTime: bedTime ?? const TimeOfDay(hour: 23, minute: 59),
+        startTime: startTime,
+        bedTime: bedTime,
         listPill: listPillController?.text,
-        description: desController?.text);
+        description: desController?.text,
+        times: timeAlarms);
 
     //update medicine list via global bloc
     globalBloc?.updateMedicineList(newEntryMedicine);
 
     //schedule notification
     NotificationService().scheduleNotification(newEntryMedicine);
-
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const SuccessScreen()));
+    if (mounted) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const SuccessScreen()));
+    }
   }
 
   Widget buildTop() {
@@ -370,7 +355,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
             ),
           ),
           Text(
-            "Add Pill",
+            S.current.add_pill,
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
@@ -396,20 +381,16 @@ class _NewEntryPageState extends State<NewEntryPage> {
     _newEntryBloc.errorState$!.listen((EntryError error) {
       switch (error) {
         case EntryError.nameNull:
-          displayError("Please enter the medicine's name");
+          displayError(S.current.error_name_null);
           break;
-
         case EntryError.nameDuplicate:
-          displayError("Medicine name already exists");
-          break;
-        case EntryError.dosage:
-          displayError("Please enter the dosage required");
+          displayError(S.current.error_name_duplicate);
           break;
         case EntryError.interval:
-          displayError("Please select the reminder's interval");
+          displayError(S.current.error_interval);
           break;
-        case EntryError.startTime:
-          displayError("Please select the reminder's starting time");
+        case EntryError.validStartTime:
+          displayError(S.current.error_valid_start_time);
           break;
         default:
       }
@@ -429,7 +410,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
               .bodyMedium
               ?.copyWith(color: Colors.red),
         ),
-        duration: const Duration(milliseconds: 2000),
+        duration: const Duration(milliseconds: 3000),
       ),
     );
   }

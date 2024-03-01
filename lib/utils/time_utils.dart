@@ -6,7 +6,7 @@ class TimeUtils {
   static const String pattern_1 = "E, dd/MM/yy'";
   static const String pattern_2 = "HH:mm:ss'";
   static const String pattern_3 = "dd/MM/yyyy HH:mm:sss";
-  static const String pattern_4 = "HH:mm'";
+  static const String pattern_4 = "HH:mm";
 
   static String convertTime(String format, DateTime dateTime) {
     return DateFormat(format).format(dateTime);
@@ -27,6 +27,26 @@ class TimeUtils {
     return dateTime.isBefore(todayWithTime);
   }
 
+  static DateTime getDateTime(TimeOfDay time) {
+    DateTime now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, time.hour, time.minute);
+  }
+
+  static bool isAfterEnd(
+      TimeOfDay start, TimeOfDay end, int duration, int count) {
+    var last = TimeOfDay(
+        hour: start.hour + duration * (count - 1), minute: start.minute);
+    var lastMinute = last.hour * 60 + last.minute;
+    var endMinute = end.hour * 60 + end.minute;
+    return lastMinute > endMinute;
+  }
+
+  static bool isValidStart(TimeOfDay start, TimeOfDay end) {
+    var startMinute = start.hour * 60 + start.minute;
+    var endMinute = end.hour * 60 + end.minute;
+    return endMinute > startMinute;
+  }
+
   static tz.TZDateTime createTZDateTimeForDayOfWeek(
       int dayOfWeek, TimeOfDay timeOfDay) {
     final DateTime now = DateTime.now();
@@ -44,6 +64,11 @@ class TimeUtils {
   static tz.TZDateTime createTZDateTimeNext(int next) {
     final DateTime now = DateTime.now();
     return tz.TZDateTime.from(now.add(Duration(hours: next)), tz.local);
+  }
+
+  static tz.TZDateTime createTZDateTimeNextMinute(int next) {
+    final DateTime now = DateTime.now();
+    return tz.TZDateTime.from(now.add(Duration(minutes: next)), tz.local);
   }
 
   static String? formatTimeOfDay({TimeOfDay? time, String? defaultText}) {

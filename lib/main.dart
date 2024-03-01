@@ -47,6 +47,8 @@ class _MyAppState extends State<MyApp> {
       child: Sizer(builder: (context, orientation, deviceType) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          navigatorKey: NotificationService.navigatorKey,
+          // set property
           title: "Medical Alarm",
           onGenerateTitle: (BuildContext context) => S.of(context).app_name,
           localizationsDelegates: const [
@@ -61,9 +63,7 @@ class _MyAppState extends State<MyApp> {
             primaryColor: kPrimaryColor,
             scaffoldBackgroundColor: kScaffoldColor,
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: kPrimaryColor
-              ),
+              style: TextButton.styleFrom(foregroundColor: kPrimaryColor),
             ),
             //appbar theme
             appBarTheme: AppBarTheme(
@@ -155,7 +155,6 @@ class _MyAppState extends State<MyApp> {
                 fontWeight: FontWeight.w600,
                 color: kTextColor,
               ),
-
             ),
           ),
           home: StreamBuilder(

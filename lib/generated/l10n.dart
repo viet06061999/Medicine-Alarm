@@ -369,6 +369,266 @@ class S {
       args: [count],
     );
   }
+
+  /// `It's time: {time} to take medicine {med}`
+  String title_noti(String time, String med) {
+    return Intl.message(
+      'It\'s time: $time to take medicine $med',
+      name: 'title_noti',
+      desc: '',
+      args: [time, med],
+    );
+  }
+
+  /// `Don't forget to mark it as "I took this pill"`
+  String get content_noti {
+    return Intl.message(
+      'Don\'t forget to mark it as "I took this pill"',
+      name: 'content_noti',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ok`
+  String get ok {
+    return Intl.message(
+      'Ok',
+      name: 'ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yes`
+  String get yes {
+    return Intl.message(
+      'Yes',
+      name: 'yes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No`
+  String get no {
+    return Intl.message(
+      'No',
+      name: 'no',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The last pill is after bedtime!`
+  String get bedtime_before_title {
+    return Intl.message(
+      'The last pill is after bedtime!',
+      name: 'bedtime_before_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to edit settings?`
+  String get bedtime_before_content {
+    return Intl.message(
+      'Do you want to edit settings?',
+      name: 'bedtime_before_content',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The next pill is after bedtime!`
+  String get bedtime_before_next_title {
+    return Intl.message(
+      'The next pill is after bedtime!',
+      name: 'bedtime_before_next_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want an alarm next pill?`
+  String get bedtime_before_next_content {
+    return Intl.message(
+      'Do you want an alarm next pill?',
+      name: 'bedtime_before_next_content',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter the medicine's name`
+  String get error_name_null {
+    return Intl.message(
+      'Please enter the medicine\'s name',
+      name: 'error_name_null',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Medicine name already exists`
+  String get error_name_duplicate {
+    return Intl.message(
+      'Medicine name already exists',
+      name: 'error_name_duplicate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select the reminder's duration`
+  String get error_interval {
+    return Intl.message(
+      'Please select the reminder\'s duration',
+      name: 'error_interval',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bed time can't less than start time`
+  String get error_valid_start_time {
+    return Intl.message(
+      'Bed time can\'t less than start time',
+      name: 'error_valid_start_time',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You don't have a medicine alarm!`
+  String get no_alarm {
+    return Intl.message(
+      'You don\'t have a medicine alarm!',
+      name: 'no_alarm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a new medicine alarm!`
+  String get create_new {
+    return Intl.message(
+      'Create a new medicine alarm!',
+      name: 'create_new',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for the first pill of tomorrow!`
+  String get wait_tomorrow {
+    return Intl.message(
+      'Waiting for the first pill of tomorrow!',
+      name: 'wait_tomorrow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You don't need to take this pill today!`
+  String get dont_take {
+    return Intl.message(
+      'You don\'t need to take this pill today!',
+      name: 'dont_take',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete the medicine alarm!`
+  String get delete_medicine_title {
+    return Intl.message(
+      'Delete the medicine alarm!',
+      name: 'delete_medicine_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to delete this medicine alarm?`
+  String get delete_medicine {
+    return Intl.message(
+      'Do you want to delete this medicine alarm?',
+      name: 'delete_medicine',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel the last take pill?`
+  String get cancel_last {
+    return Intl.message(
+      'Cancel the last take pill?',
+      name: 'cancel_last',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add Pill`
+  String get add_pill {
+    return Intl.message(
+      'Add Pill',
+      name: 'add_pill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit Pill`
+  String get edit_pill {
+    return Intl.message(
+      'Edit Pill',
+      name: 'edit_pill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When take pill?`
+  String get take_time {
+    return Intl.message(
+      'When take pill?',
+      name: 'take_time',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You have another pill same start time`
+  String get same_start {
+    return Intl.message(
+      'You have another pill same start time',
+      name: 'same_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to change the start time?`
+  String get want_change {
+    return Intl.message(
+      'Do you want to change the start time?',
+      name: 'want_change',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

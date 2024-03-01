@@ -51,5 +51,41 @@
         "type": "int"
       }
     }
-  }
+  },
+  "title_noti": "It's time: {time} to take medicine {med}",
+  "@title_noti": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "med": {
+        "type": "String"
+      }
+    }
+  },
+  "content_noti": "Don't forget to mark it as \"I took this pill\"",
+  "cancel": "Cancel",
+  "ok": "Ok",
+  "yes": "Yes",
+  "no": "No",
+  "bedtime_before_title": "The last pill is after bedtime!",
+  "bedtime_before_content": "Do you want to edit settings?",
+  "bedtime_before_next_title": "The next pill is after bedtime!",
+  "bedtime_before_next_content": "Do you want an alarm next pill?",
+  "error_name_null": "Please enter the medicine's name",
+  "error_name_duplicate": "Medicine name already exists",
+  "error_interval": "Please select the reminder's duration",
+  "error_valid_start_time": "Bed time can't less than start time",
+  "no_alarm": "You don't have a medicine alarm!",
+  "create_new": "Create a new medicine alarm!",
+  "wait_tomorrow": "Waiting for the first pill of tomorrow!",
+  "dont_take": "You don't need to take this pill today!",
+  "delete_medicine_title": "Delete the medicine alarm!",
+  "delete_medicine": "Do you want to delete this medicine alarm?",
+  "cancel_last": "Cancel the last take pill?",
+  "add_pill": "Add Pill",
+  "edit_pill": "Edit Pill",
+  "take_time": "When take pill?",
+  "same_start": "You have another pill same start time",
+  "want_change": "Do you want to change the start time?"
 }

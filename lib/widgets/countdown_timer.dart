@@ -4,17 +4,22 @@ import 'package:medicine_alarm/constants.dart';
 
 class CountdownTimer extends StatefulWidget {
   final DateTime startTime;
-  final int durationInHours;
+  final DateTime? nextTime;
+  final bool done;
   final Function onCount;
 
-  CountdownTimer({required this.startTime, required this.durationInHours, required this.onCount});
+  const CountdownTimer(
+      {super.key,
+      required this.startTime,
+      required this.nextTime,
+      required this.onCount,
+      required this.done});
 
   @override
   _CountdownTimerState createState() => _CountdownTimerState();
 }
 
 class _CountdownTimerState extends State<CountdownTimer> {
-  late DateTime nextTime;
   late Timer timer;
 
   @override
@@ -25,9 +30,11 @@ class _CountdownTimerState extends State<CountdownTimer> {
   }
 
   void calculateNextTime() {
-    nextTime = widget.startTime.add(Duration(hours: widget.durationInHours));
-    Duration remainingDuration = nextTime.difference(DateTime.now());
-    if(remainingDuration.inSeconds % 10 == 0){
+    if (widget.nextTime == null) {
+      return;
+    }
+    Duration remainingDuration = widget.nextTime!.difference(DateTime.now());
+    if (remainingDuration.inSeconds % 10 == 0) {
       widget.onCount.call();
     }
   }
@@ -46,14 +53,18 @@ class _CountdownTimerState extends State<CountdownTimer> {
     super.dispose();
   }
 
-  String formatDuration(Duration duration) {
+  String formatDuration() {
     String twoDigits(int n) {
       if (n >= 10) return "$n";
       return "0$n";
     }
-    if(duration.isNegative){
+
+    if (widget.done || widget.nextTime == null) {
       return "00:00:00";
     }
+
+    Duration duration = widget.nextTime!.difference(DateTime.now());
+
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
 
@@ -62,8 +73,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
 
   @override
   Widget build(BuildContext context) {
-    Duration remainingDuration = nextTime.difference(DateTime.now());
-    String remainingTime = formatDuration(remainingDuration);
+    String remainingTime = formatDuration();
 
     return Text(
       remainingTime,
