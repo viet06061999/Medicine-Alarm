@@ -5,7 +5,7 @@ import 'package:medicine_alarm/utils/time_utils.dart';
 
 class Medicine {
   final int id;
-  final List<dynamic>? notificationIDs;
+  List<int>? notificationIDs;
   final String? medicineName;
   final String? listPill;
   final String? description;
@@ -14,7 +14,7 @@ class Medicine {
   final TimeOfDay bedTime;
   final List<String> days;
   List<DateTime>? pickTimes;
-  List<TimeOfDay>? times;
+  List<TimeOfDay> times;
   bool isDoneOfDay;
 
   Medicine(this.id, this.days,
@@ -27,7 +27,7 @@ class Medicine {
       this.number,
       this.pickTimes,
       this.isDoneOfDay = false,
-      this.times});
+      required this.times});
 
   //geters
   String get getName => medicineName!;
@@ -40,13 +40,13 @@ class Medicine {
   DateTime? get next {
     DateTime? nextTime;
 
-    if (times != null && times!.isNotEmpty) {
+    if (times.isNotEmpty) {
       DateTime now = DateTime.now();
       Duration shortestDuration =
-          Duration(days: 365); // Giả sử một khoảng thời gian tối đa
+          const Duration(days: 365); // Giả sử một khoảng thời gian tối đa
 
-      for (var i = 0; i < times!.length; i++) {
-        var time = times![i];
+      for (var i = 0; i < times.length; i++) {
+        var time = times[i];
         DateTime dateTime =
             DateTime(now.year, now.month, now.day, time.hour, time.minute);
         if (dateTime.isAfter(now) &&
@@ -109,7 +109,9 @@ class Medicine {
 
   factory Medicine.fromJson(Map<String, dynamic> parsedJson) {
     return Medicine(parsedJson['id'], List<String>.from(parsedJson['days']),
-        notificationIDs: parsedJson['ids'],
+        notificationIDs: parsedJson['ids'] != null
+            ? List<int>.from(parsedJson['ids']).map((e) => e).toList()
+            : null,
         medicineName: parsedJson['name'],
         number: parsedJson['number'],
         startTime: TimeUtils.parseTimeOfDay(parsedJson['start']),
@@ -124,12 +126,16 @@ class Medicine {
             ? List<String>.from(parsedJson['times'])
                 .map((e) => TimeUtils.parseTimeOfDay(e))
                 .toList()
-            : null);
+            : []);
   }
 
   bool doneToday() {
     var isBefore = last == null;
     var pickDone = (pickTimes?.length ?? 0) >= (number ?? 0);
-    return !isBefore & (pickDone || isDoneOfDay);
+    var lastTime = times.isNotEmpty
+        ? TimeUtils.getDateTime(times.last)
+        : DateTime.now().subtract(const Duration(seconds: 2));
+    var isAfterLast = DateTime.now().isAfter(lastTime);
+    return !isBefore & (pickDone || isDoneOfDay || isAfterLast);
   }
 }

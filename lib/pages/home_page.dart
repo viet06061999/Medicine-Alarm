@@ -497,6 +497,8 @@ class _HomePageState extends State<HomePage> {
                     NotificationService().openAlertBox(S.current.cancel_last,
                         onPositive: () async {
                       globalBloc?.cancelLastPill(selectedMed!);
+                      NotificationService()
+                          .scheduleNotification(selectedMed!, globalBloc);
                       setState(() {});
                     });
                   },
@@ -516,6 +518,8 @@ class _HomePageState extends State<HomePage> {
               ? null
               : () {
                   globalBloc?.tookPill(selectedMed!);
+                  NotificationService()
+                      .scheduleNotification(selectedMed!, globalBloc);
                 },
           child: SizedBox(
             width: 70.w,

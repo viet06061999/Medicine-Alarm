@@ -7,14 +7,14 @@ import 'package:medicine_alarm/models/medicine.dart';
 import 'package:sizer/sizer.dart';
 
 import 'time_utils.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   static final NotificationService _instance = NotificationService._internal();
 
-  static const int addNotification = 1000;
-  static const int weekNotification = 10001;
+  static const int dayNotification = 2;
 
   // Khai báo một hàm factory để trả về thể hiện duy nhất của NotificationService
   factory NotificationService() {
@@ -60,22 +60,6 @@ class NotificationService {
     var medicine = globalBloc.findById(int.parse(id));
     var txTime = TimeUtils.createTZDateTimeNext(1);
     print('onDidReceive next at $txTime');
-    await notificationsPlugin.zonedSchedule(
-        medicine.id + addNotification,
-        S.current.title_noti(
-            S.current.title_noti(
-                TimeUtils.convertTime(
-                        TimeUtils.pattern_4, medicine.next ?? DateTime.now()) ??
-                    "",
-                medicine.getName),
-            medicine.getName),
-        S.current.content_noti,
-        txTime,
-        notificationDetails(),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
   notificationDetails() {
@@ -95,13 +79,35 @@ class NotificationService {
         iOS: DarwinNotificationDetails());
   }
 
-  Future<void> scheduleNotification(Medicine medicine) async {
-    if (medicine.days.length == 1 && medicine.days[0] == "0") {
+  Future<void> scheduleNotification(Medicine medicine, GlobalBloc? bloc,
+      {int after = 0}) async {
+    await cancelAll(medicine);
+    List<int> notificationIds = [];
+    var isAll = medicine.days.length == 1 && medicine.days[0] == "0";
+    var nextTime = medicine.next;
+    print('next at $nextTime');
+
+    for (var day in medicine.days) {
       for (TimeOfDay time in medicine.times ?? []) {
-        var txTime = TimeUtils.createTZDateTimeForDayOfWeek(0, time);
+        var dateTime = TimeUtils.getDateTime(time);
+        var id = int.parse('${medicine.id}$dayNotification$day${time.hour}');
+        notificationIds.add(id);
+        tz.TZDateTime txTime;
+        if (nextTime == null || dateTime.isBefore(nextTime)) {
+          if (isAll) {
+            txTime = TimeUtils.createTZDateTimeForDayOfWeek(
+                int.parse(day) + 1, time);
+          } else {
+            txTime = TimeUtils.createTZDateTimeForDayOfWeek(
+                int.parse(day) + 7, time);
+          }
+        } else {
+          txTime = TimeUtils.createTZDateTimeForDayOfWeek(int.parse(day), time);
+        }
+
         print('zonedSchedule at $txTime');
         await notificationsPlugin.zonedSchedule(
-          medicine.id + time.hour,
+          id,
           S.current.title_noti(
               TimeUtils.formatTimeOfDay(time: time) ?? "", medicine.getName),
           S.current.content_noti,
@@ -110,31 +116,20 @@ class NotificationService {
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents: DateTimeComponents.time,
+          matchDateTimeComponents: isAll
+              ? DateTimeComponents.time
+              : DateTimeComponents.dayOfWeekAndTime,
           payload: medicine.id.toString(),
         );
       }
-    } else {
-      for (var day in medicine.days) {
-        for (TimeOfDay time in medicine.times ?? []) {
-          var txTime =
-              TimeUtils.createTZDateTimeForDayOfWeek(int.parse(day), time);
-          print('zonedSchedule at $txTime');
-          await notificationsPlugin.zonedSchedule(
-            medicine.id + int.parse(day) * 100 + weekNotification + time.hour,
-            S.current.title_noti(
-                TimeUtils.formatTimeOfDay(time: time) ?? "", medicine.getName),
-            S.current.content_noti,
-            txTime,
-            notificationDetails(),
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.absoluteTime,
-            matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-            payload: medicine.id.toString(),
-          );
-        }
-      }
+    }
+    medicine.notificationIDs = notificationIds;
+    bloc?.updateMedicine(medicine);
+  }
+
+  cancelAll(Medicine medicine) async {
+    for (var id in medicine.notificationIDs ?? []) {
+      await notificationsPlugin.cancel(id);
     }
   }
 

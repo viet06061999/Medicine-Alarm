@@ -76,6 +76,7 @@ class _AlarmTimeState extends State<AlarmTime> {
     } else {
       times = calculateAlarmTimes();
     }
+    times.sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
   }
 
   @override
@@ -87,6 +88,8 @@ class _AlarmTimeState extends State<AlarmTime> {
     } else {
       times = calculateAlarmTimes();
     }
+    //todo check
+    times.sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
     widget.onTime(times);
   }
 

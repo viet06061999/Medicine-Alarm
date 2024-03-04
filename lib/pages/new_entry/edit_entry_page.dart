@@ -143,9 +143,9 @@ class _EditEntryPageState extends State<EditEntryPage> {
                                 vertical: 4, horizontal: 12),
                             child: Text(
                               TimeUtils.formatTimeOfDay(
-                                      time: _newEntryBloc
-                                          .selectedStartTime$?.value,
-                                      defaultText: "00:00") ??
+                                  time: _newEntryBloc
+                                      .selectedStartTime$?.value,
+                                  defaultText: "00:00") ??
                                   "",
                               style: Theme.of(context)
                                   .textTheme
@@ -173,9 +173,9 @@ class _EditEntryPageState extends State<EditEntryPage> {
                                 vertical: 4, horizontal: 12),
                             child: Text(
                               TimeUtils.formatTimeOfDay(
-                                      time:
-                                          _newEntryBloc.selectedEndTime$?.value,
-                                      defaultText: "23:59") ??
+                                  time:
+                                  _newEntryBloc.selectedEndTime$?.value,
+                                  defaultText: "23:59") ??
                                   "",
                               style: Theme.of(context)
                                   .textTheme
@@ -312,15 +312,15 @@ class _EditEntryPageState extends State<EditEntryPage> {
           content: S.current.want_change,
           negative: S.current.no,
           positive: S.current.yes, onPositive: () {
-        needEdit = true;
-      });
+            needEdit = true;
+          });
     }
 
     if (needEdit) {
       return;
     }
     Medicine newEntryMedicine = Medicine(widget.medicine.id, days,
-        notificationIDs: days,
+        notificationIDs: widget.medicine.notificationIDs,
         medicineName: medicineName,
         number: number,
         startTime: startTime,
@@ -329,13 +329,11 @@ class _EditEntryPageState extends State<EditEntryPage> {
         description: desController?.text,
         times: timeAlarms,
         pickTimes: widget.medicine.pickTimes);
-    var index =
-        await globalBloc?.removeMedicine(widget.medicine, isUpdate: true);
     //update medicine list via global bloc
-    globalBloc?.updateMedicineList(newEntryMedicine, index: index);
+    globalBloc?.updateMedicine(newEntryMedicine);
 
     //schedule notification
-    NotificationService().scheduleNotification(newEntryMedicine);
+    NotificationService().scheduleNotification(newEntryMedicine, globalBloc);
     if (mounted) {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const SuccessScreen()));
@@ -446,10 +444,10 @@ class IntervalSelection extends StatefulWidget {
 
   const IntervalSelection(
       {super.key,
-      required this.child,
-      required this.onSelected,
-      required this.getText,
-      required this.intervals});
+        required this.child,
+        required this.onSelected,
+        required this.getText,
+        required this.intervals});
 
   @override
   State<IntervalSelection> createState() => _IntervalSelectionState();
@@ -462,9 +460,9 @@ class _IntervalSelectionState extends State<IntervalSelection> {
       itemBuilder: (BuildContext context) {
         return widget.intervals
             .map((e) => PopupMenuItem<int>(
-                  value: e,
-                  child: Text(widget.getText(e)),
-                ))
+          value: e,
+          child: Text(widget.getText(e)),
+        ))
             .toList();
       },
       onSelected: widget.onSelected,
