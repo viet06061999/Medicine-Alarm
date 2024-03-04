@@ -38,27 +38,33 @@ class Medicine {
       pickTimes != null && pickTimes!.isNotEmpty ? pickTimes!.last : null;
 
   DateTime? get next {
-    DateTime? nextTime;
 
-    if (times.isNotEmpty) {
-      DateTime now = DateTime.now();
-      Duration shortestDuration =
-          const Duration(days: 365); // Giả sử một khoảng thời gian tối đa
-
-      for (var i = 0; i < times.length; i++) {
-        var time = times[i];
-        DateTime dateTime =
-            DateTime(now.year, now.month, now.day, time.hour, time.minute);
-        if (dateTime.isAfter(now) &&
-            dateTime.difference(now) < shortestDuration &&
-            i >= (pickTimes?.length ?? 0)) {
-          shortestDuration = dateTime.difference(now);
-          nextTime = dateTime;
-        }
-      }
+    // if (times.isNotEmpty) {
+    //   DateTime now = DateTime.now();
+    //   Duration shortestDuration =
+    //       const Duration(days: 365); // Giả sử một khoảng thời gian tối đa
+    //
+    //   for (var i = 0; i < times.length; i++) {
+    //     var time = times[i];
+    //     DateTime dateTime =
+    //         DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    //     if (dateTime.isAfter(now) &&
+    //         dateTime.difference(now) < shortestDuration &&
+    //         i >= (pickTimes?.length ?? 0)) {
+    //       shortestDuration = dateTime.difference(now);
+    //       nextTime = dateTime;
+    //     }
+    //   }
+    // }
+    if (pickTimes == null || pickTimes!.isEmpty) {
+      return TimeUtils.getDateTime(times.first);
+    } else {
+     var index = pickTimes?.length ?? -1;
+     if(index != -1){
+       return TimeUtils.getDateTime(times[index]);
+     }
     }
-
-    return nextTime;
+    return null;
   }
 
   int get totalTime {
@@ -93,7 +99,7 @@ class Medicine {
       'days': days,
       'number': number,
       'times': times
-          ?.map((e) =>
+          .map((e) =>
               "${e.hour <= 9 ? "0${e.hour}" : e.hour}:${e.minute <= 9 ? "0${e.minute}" : e.minute}")
           .toList(),
       'start':

@@ -143,9 +143,9 @@ class _EditEntryPageState extends State<EditEntryPage> {
                                 vertical: 4, horizontal: 12),
                             child: Text(
                               TimeUtils.formatTimeOfDay(
-                                  time: _newEntryBloc
-                                      .selectedStartTime$?.value,
-                                  defaultText: "00:00") ??
+                                      time: _newEntryBloc
+                                          .selectedStartTime$?.value,
+                                      defaultText: "00:00") ??
                                   "",
                               style: Theme.of(context)
                                   .textTheme
@@ -173,9 +173,9 @@ class _EditEntryPageState extends State<EditEntryPage> {
                                 vertical: 4, horizontal: 12),
                             child: Text(
                               TimeUtils.formatTimeOfDay(
-                                  time:
-                                  _newEntryBloc.selectedEndTime$?.value,
-                                  defaultText: "23:59") ??
+                                      time:
+                                          _newEntryBloc.selectedEndTime$?.value,
+                                      defaultText: "23:59") ??
                                   "",
                               style: Theme.of(context)
                                   .textTheme
@@ -289,6 +289,9 @@ class _EditEntryPageState extends State<EditEntryPage> {
       }
     }
     int number = _newEntryBloc.selectCount!.value;
+    if (number <= 0) {
+      _newEntryBloc.submitError(EntryError.interval);
+    }
     TimeOfDay startTime = _newEntryBloc.selectedStartTime$?.value ??
         const TimeOfDay(hour: 00, minute: 00);
     TimeOfDay bedTime = _newEntryBloc.selectedEndTime$?.value ??
@@ -312,8 +315,8 @@ class _EditEntryPageState extends State<EditEntryPage> {
           content: S.current.want_change,
           negative: S.current.no,
           positive: S.current.yes, onPositive: () {
-            needEdit = true;
-          });
+        needEdit = true;
+      });
     }
 
     if (needEdit) {
@@ -444,10 +447,10 @@ class IntervalSelection extends StatefulWidget {
 
   const IntervalSelection(
       {super.key,
-        required this.child,
-        required this.onSelected,
-        required this.getText,
-        required this.intervals});
+      required this.child,
+      required this.onSelected,
+      required this.getText,
+      required this.intervals});
 
   @override
   State<IntervalSelection> createState() => _IntervalSelectionState();
@@ -460,9 +463,9 @@ class _IntervalSelectionState extends State<IntervalSelection> {
       itemBuilder: (BuildContext context) {
         return widget.intervals
             .map((e) => PopupMenuItem<int>(
-          value: e,
-          child: Text(widget.getText(e)),
-        ))
+                  value: e,
+                  child: Text(widget.getText(e)),
+                ))
             .toList();
       },
       onSelected: widget.onSelected,

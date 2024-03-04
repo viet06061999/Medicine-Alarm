@@ -74,7 +74,7 @@
   "bedtime_before_next_content": "האם אתה רוצה אזעקה הגלולה הבאה?",
   "error_name_null": "נא להזין את שם התרופה",
   "error_name_duplicate": "שם התרופה כבר קיים",
-  "error_interval": "אנא בחר את משך התזכורת",
+  "error_interval": "אנא בחר את מספר התזכורת",
   "error_valid_start_time": "זמן השינה לא יכול להיות פחות משעת ההתחלה",
   "no_alarm": "אין לך אזעקת תרופות!",
   "create_new": "צור אזעקת תרופות חדשה!",

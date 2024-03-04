@@ -77,6 +77,7 @@ class _AlarmTimeState extends State<AlarmTime> {
       times = calculateAlarmTimes();
     }
     times.sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
+    widget.onTime(times);
   }
 
   @override

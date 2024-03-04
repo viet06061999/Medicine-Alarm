@@ -61,6 +61,19 @@ class TimeUtils {
     );
   }
 
+  static tz.TZDateTime createTZDateTimeForNext(
+      int days, TimeOfDay timeOfDay) {
+    final DateTime now = DateTime.now();
+    return tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day + days,
+      timeOfDay.hour,
+      timeOfDay.minute,
+    );
+  }
+
   static tz.TZDateTime createTZDateTimeNext(int next) {
     final DateTime now = DateTime.now();
     return tz.TZDateTime.from(now.add(Duration(hours: next)), tz.local);

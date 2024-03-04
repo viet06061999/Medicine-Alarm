@@ -490,10 +490,10 @@ class S {
     );
   }
 
-  /// `Please select the reminder's duration`
+  /// `Please select the reminder's number`
   String get error_interval {
     return Intl.message(
-      'Please select the reminder\'s duration',
+      'Please select the reminder\'s number',
       name: 'error_interval',
       desc: '',
       args: [],

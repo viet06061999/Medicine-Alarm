@@ -60,7 +60,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "duration_pill": MessageLookupByLibrary.simpleMessage("משך לקחת גלולה"),
         "edit_pill": MessageLookupByLibrary.simpleMessage("ערוך גלולה"),
         "error_interval":
-            MessageLookupByLibrary.simpleMessage("אנא בחר את משך התזכורת"),
+            MessageLookupByLibrary.simpleMessage("אנא בחר את מספר התזכורת"),
         "error_name_duplicate":
             MessageLookupByLibrary.simpleMessage("שם התרופה כבר קיים"),
         "error_name_null":

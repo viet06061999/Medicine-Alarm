@@ -61,7 +61,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Duration take pill"),
         "edit_pill": MessageLookupByLibrary.simpleMessage("Edit Pill"),
         "error_interval": MessageLookupByLibrary.simpleMessage(
-            "Please select the reminder\'s duration"),
+            "Please select the reminder\'s number"),
         "error_name_duplicate": MessageLookupByLibrary.simpleMessage(
             "Medicine name already exists"),
         "error_name_null": MessageLookupByLibrary.simpleMessage(

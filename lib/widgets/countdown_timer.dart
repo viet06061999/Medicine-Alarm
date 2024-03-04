@@ -59,7 +59,9 @@ class _CountdownTimerState extends State<CountdownTimer> {
       return "0$n";
     }
 
-    if (widget.done || widget.nextTime == null) {
+    if (widget.done ||
+        widget.nextTime == null ||
+        widget.nextTime?.isAfter(widget.startTime) == true) {
       return "00:00:00";
     }
 

@@ -4,6 +4,7 @@ import 'package:medicine_alarm/constants.dart';
 import 'package:medicine_alarm/generated/l10n.dart';
 import 'package:medicine_alarm/global_bloc.dart';
 import 'package:medicine_alarm/models/medicine.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 import 'time_utils.dart';
@@ -50,16 +51,21 @@ class NotificationService {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.requestExactAlarmsPermission();
     await notificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse: onDidReceive);
+        onDidReceiveNotificationResponse: onDidReceive, onDidReceiveBackgroundNotificationResponse: onDidReceiveBg);
   }
 
   onDidReceive(NotificationResponse notificationResponse) async {
     var id = notificationResponse.payload;
     if (id == null) return;
-    var globalBloc = GlobalBloc();
-    var medicine = globalBloc.findById(int.parse(id));
-    var txTime = TimeUtils.createTZDateTimeNext(1);
-    print('onDidReceive next at $txTime');
+  }
+
+  @pragma("vm:entry-point")
+  onDidReceiveBg(NotificationResponse notificationResponse) async {
+    var id = notificationResponse.payload;
+    if (id == null) return;
+    if(navigatorKey.currentContext != null) {
+      print( Provider.of<GlobalBloc>(navigatorKey.currentContext!));
+    }
   }
 
   notificationDetails() {
@@ -86,26 +92,24 @@ class NotificationService {
     var isAll = medicine.days.length == 1 && medicine.days[0] == "0";
     var nextTime = medicine.next;
     print('next at $nextTime');
-
-    for (var day in medicine.days) {
+    var days = medicine.days;
+    if(isAll){
+      days = ["1", "2", "3", "4", "5", "6", "7"];
+    }
+    for (var day in days) {
       for (TimeOfDay time in medicine.times ?? []) {
         var dateTime = TimeUtils.getDateTime(time);
         var id = int.parse('${medicine.id}$dayNotification$day${time.hour}');
         notificationIds.add(id);
         tz.TZDateTime txTime;
         if (nextTime == null || dateTime.isBefore(nextTime)) {
-          if (isAll) {
-            txTime = TimeUtils.createTZDateTimeForDayOfWeek(
-                int.parse(day) + 1, time);
-          } else {
-            txTime = TimeUtils.createTZDateTimeForDayOfWeek(
-                int.parse(day) + 7, time);
-          }
+          txTime = TimeUtils.createTZDateTimeForNext(
+              int.parse(day) + 7, time);
         } else {
-          txTime = TimeUtils.createTZDateTimeForDayOfWeek(int.parse(day), time);
+          txTime = TimeUtils.createTZDateTimeForNext(int.parse(day), time);
         }
 
-        print('zonedSchedule at $txTime');
+        print('zonedSchedule at $txTime $id');
         await notificationsPlugin.zonedSchedule(
           id,
           S.current.title_noti(
@@ -116,9 +120,7 @@ class NotificationService {
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents: isAll
-              ? DateTimeComponents.time
-              : DateTimeComponents.dayOfWeekAndTime,
+          matchDateTimeComponents:  DateTimeComponents.dayOfWeekAndTime,
           payload: medicine.id.toString(),
         );
       }
