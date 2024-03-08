@@ -52,12 +52,9 @@
       }
     }
   },
-  "title_noti": "הגיע הזמן: {time} לקחת תרופה {med}",
+  "title_noti": "הגיע הזמן לקחת תרופה {med}",
   "@title_noti": {
     "placeholders": {
-      "time": {
-        "type": "String"
-      },
       "med": {
         "type": "String"
       }
@@ -87,5 +84,7 @@
   "edit_pill": "ערוך גלולה",
   "take_time": "מתי לקחת גלולה?",
   "same_start": "יש לך עוד גלולה באותו זמן התחלה",
-  "want_change": "האם ברצונך לשנות את שעת ההתחלה?"
+  "want_change": "האם ברצונך לשנות את שעת ההתחלה?",
+  "remind_later": "תזכיר מאוחר יותר",
+  "remind": "תזכיר לי בעוד 10 דקות"
 }

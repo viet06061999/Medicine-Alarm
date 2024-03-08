@@ -314,9 +314,6 @@ class _MedicineDetailsState extends State<MedicineDetails> {
           ),
         ],
       ),
-      const SizedBox(
-        height: 8,
-      ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Wrap(
@@ -328,7 +325,7 @@ class _MedicineDetailsState extends State<MedicineDetails> {
                     color: kPrimaryColor),
                 padding:
                     const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                margin: const EdgeInsets.only(left: 16),
+                margin: const EdgeInsets.only(left: 16, top: 8),
                 child: Text(
                   TimeUtils.formatTimeOfDay(time: time, defaultText: "00:00") ??
                       "",

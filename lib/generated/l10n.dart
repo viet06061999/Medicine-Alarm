@@ -370,13 +370,13 @@ class S {
     );
   }
 
-  /// `It's time: {time} to take medicine {med}`
-  String title_noti(String time, String med) {
+  /// `It's time to take medicine {med}`
+  String title_noti(String med) {
     return Intl.message(
-      'It\'s time: $time to take medicine $med',
+      'It\'s time to take medicine $med',
       name: 'title_noti',
       desc: '',
-      args: [time, med],
+      args: [med],
     );
   }
 
@@ -625,6 +625,26 @@ class S {
     return Intl.message(
       'Do you want to change the start time?',
       name: 'want_change',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remind later`
+  String get remind_later {
+    return Intl.message(
+      'Remind later',
+      name: 'remind_later',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remind me in 10 minutes`
+  String get remind {
+    return Intl.message(
+      'Remind me in 10 minutes',
+      name: 'remind',
       desc: '',
       args: [],
     );

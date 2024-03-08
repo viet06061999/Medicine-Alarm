@@ -29,9 +29,14 @@ class ItemTime extends StatelessWidget {
             width: 50.w,
             child: Row(
               children: [
-                SvgPicture.asset(
-                  icon,
-                  height: 24,
+                SizedBox(
+                  width: 24,
+                  child: SvgPicture.asset(
+                    icon,
+                    height: 20,
+                    width: 20,
+                    fit: BoxFit.contain,
+                  ),
                 ),
                 const SizedBox(
                   width: 8,

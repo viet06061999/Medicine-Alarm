@@ -80,22 +80,10 @@ class GlobalBloc {
     if (isNotPick) {
       return;
     }
-    element.isDoneOfDay = false;
     element.pickTimes?.removeLast();
     if (element.pickTimes?.isNotEmpty == false) {
       element.pickTimes = null;
     }
-    List<String> medicineJsonList =
-        blockList.map((e) => jsonEncode(e.toJson())).toList();
-    sharedUser.setStringList('medicines', medicineJsonList);
-    _medicineList$!.add(blockList);
-  }
-
-  Future updateDone(Medicine medicine, bool done) async {
-    SharedPreferences sharedUser = await SharedPreferences.getInstance();
-    var blockList = _medicineList$!.value;
-    var element = blockList.firstWhere((e) => medicine.id == e.id);
-    element.isDoneOfDay = done;
     List<String> medicineJsonList =
         blockList.map((e) => jsonEncode(e.toJson())).toList();
     sharedUser.setStringList('medicines', medicineJsonList);
@@ -192,6 +180,30 @@ class GlobalBloc {
       SharedPreferences? sharedUser = await SharedPreferences.getInstance();
       sharedUser.setString('user', user);
       _userName$?.add(user);
+    }
+  }
+
+  Future<List<Medicine>> getMedicineList() async {
+    SharedPreferences? sharedUser = await SharedPreferences.getInstance();
+    List<String>? jsonList = sharedUser.getStringList('medicines');
+    List<Medicine> prefList = [];
+    if (jsonList == null) {
+      return [];
+    } else {
+      for (String jsonMedicine in jsonList) {
+        dynamic userMap = jsonDecode(jsonMedicine);
+        Medicine tempMedicine = Medicine.fromJson(userMap);
+        var lastTime = tempMedicine.last;
+        var now = DateTime.now();
+        if (lastTime != null &&
+            (lastTime.year < now.year ||
+                lastTime.month < now.month ||
+                lastTime.day < now.day)) {
+          tempMedicine.pickTimes = [];
+        }
+        prefList.add(tempMedicine);
+      }
+      return prefList;
     }
   }
 

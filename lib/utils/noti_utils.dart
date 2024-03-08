@@ -1,14 +1,49 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:medicine_alarm/constants.dart';
 import 'package:medicine_alarm/generated/l10n.dart';
 import 'package:medicine_alarm/global_bloc.dart';
 import 'package:medicine_alarm/models/medicine.dart';
-import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 import 'time_utils.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+
+@pragma("vm:entry-point")
+onDidReceiveBg(NotificationResponse notificationResponse) {
+  print('action tap ${notificationResponse.payload}');
+  var data = notificationResponse.payload;
+  if (data == null) return;
+  Map<String, dynamic> jsonData = jsonDecode(data);
+  var id = jsonData['medicineId'];
+  if (id == null || notificationResponse.actionId == null) return;
+  if (notificationResponse.actionId == NotificationService.remindLater) {
+    print('id ${notificationResponse.actionId}');
+    tz.initializeTimeZones();
+    FlutterTimezone.getLocalTimezone().then((currentTimeZone) {
+      tz.setLocalLocation(tz.getLocation(currentTimeZone));
+      NotificationService().scheduleRemindNotification(
+        jsonData['title'] as String,
+        jsonData['body'] as String,
+        jsonData['remindLater'] as String,
+        data,
+      );
+      Fluttertoast.showToast(
+          msg: jsonData['remind'] as String,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.black.withOpacity(0.8),
+          textColor: Colors.white,
+          fontSize: 16.0);
+    });
+  }
+}
 
 class NotificationService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -16,6 +51,9 @@ class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
 
   static const int dayNotification = 2;
+  static const int otherNotification = 3;
+  static const int remindNotification = 5;
+  static const String remindLater = '4';
 
   // Khai báo một hàm factory để trả về thể hiện duy nhất của NotificationService
   factory NotificationService() {
@@ -51,25 +89,28 @@ class NotificationService {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.requestExactAlarmsPermission();
     await notificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse: onDidReceive, onDidReceiveBackgroundNotificationResponse: onDidReceiveBg);
+        onDidReceiveNotificationResponse: onDidReceive,
+        onDidReceiveBackgroundNotificationResponse: onDidReceiveBg);
   }
 
   onDidReceive(NotificationResponse notificationResponse) async {
-    var id = notificationResponse.payload;
-    if (id == null) return;
-  }
-
-  @pragma("vm:entry-point")
-  onDidReceiveBg(NotificationResponse notificationResponse) async {
-    var id = notificationResponse.payload;
-    if (id == null) return;
-    if(navigatorKey.currentContext != null) {
-      print( Provider.of<GlobalBloc>(navigatorKey.currentContext!));
+    var data = notificationResponse.payload;
+    if (data == null) return;
+    Map<String, dynamic> jsonData = jsonDecode(data);
+    if (jsonData["medicineId"] != null) {
+      int id = jsonData["medicineId"] as int;
+      if (NotificationService.navigatorKey.currentContext != null) {
+        Navigator.pushNamedAndRemoveUntil(
+            NotificationService.navigatorKey.currentContext!,
+            "/",
+            (route) => false,
+            arguments: id);
+      }
     }
   }
 
-  notificationDetails() {
-    return const NotificationDetails(
+  notificationDetails({String? later}) {
+    return NotificationDetails(
         android: AndroidNotificationDetails(
             'repeatDailyAtTime channel id', 'repeatDailyAtTime channel name',
             importance: Importance.max,
@@ -77,11 +118,14 @@ class NotificationService {
             priority: Priority.high,
             category: AndroidNotificationCategory.reminder,
             ledOffMs: 1000,
-            sound: RawResourceAndroidNotificationSound("sound"),
             playSound: true,
-            // fullScreenIntent: true,
             ledOnMs: 1000,
-            enableLights: true),
+            enableLights: true,
+            audioAttributesUsage: AudioAttributesUsage.alarm,
+            actions: [
+              AndroidNotificationAction(
+                  remindLater, later ?? S.current.remind_later)
+            ]),
         iOS: DarwinNotificationDetails());
   }
 
@@ -93,36 +137,70 @@ class NotificationService {
     var nextTime = medicine.next;
     print('next at $nextTime');
     var days = medicine.days;
-    if(isAll){
+    if (isAll) {
       days = ["1", "2", "3", "4", "5", "6", "7"];
     }
+    var lastTime = medicine.last;
     for (var day in days) {
       for (TimeOfDay time in medicine.times ?? []) {
+        final jsonData = {
+          'medicineId': medicine.id,
+          'title':
+              S.current.title_noti(TimeUtils.formatTimeOfDay(time: time) ?? ""),
+          'body': S.current.content_noti,
+          'remindLater': S.current.remind_later,
+          'remind': S.current.remind
+        };
         var dateTime = TimeUtils.getDateTime(time);
-        var id = int.parse('${medicine.id}$dayNotification$day${time.hour}');
-        notificationIds.add(id);
         tz.TZDateTime txTime;
-        if (nextTime == null || dateTime.isBefore(nextTime)) {
-          txTime = TimeUtils.createTZDateTimeForNext(
-              int.parse(day) + 7, time);
+        var isContinue = ((lastTime != null &&
+                    nextTime != null &&
+                    dateTime.isAfter(lastTime) &&
+                    dateTime.isBefore(nextTime)) ||
+                (lastTime != null &&
+                    nextTime == null &&
+                    dateTime.isAfter(lastTime))) &&
+            dateTime.weekday.toString() == day;
+        if (isContinue) {
+          for (var i = 1; i < 9; i++) {
+            txTime =
+                TimeUtils.createTZDateTimeForDayOfWeek(int.parse(day), time)
+                    .add(Duration(days: i * 7));
+            var id = int.parse(
+                '${medicine.id}$otherNotification${txTime.day}${time.hour}');
+            notificationIds.add(id);
+            print('zonedSchedule at $txTime $id');
+            await notificationsPlugin.zonedSchedule(
+              id,
+              S.current.title_noti(TimeUtils.formatTimeOfDay(time: time) ?? ""),
+              S.current.content_noti,
+              txTime,
+              notificationDetails(),
+              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+              uiLocalNotificationDateInterpretation:
+                  UILocalNotificationDateInterpretation.absoluteTime,
+              matchDateTimeComponents: DateTimeComponents.dateAndTime,
+              payload: jsonEncode(jsonData),
+            );
+          }
         } else {
-          txTime = TimeUtils.createTZDateTimeForNext(int.parse(day), time);
+          txTime = TimeUtils.createTZDateTimeForDayOfWeek(int.parse(day), time);
+          var id = int.parse('${medicine.id}$dayNotification$day${time.hour}');
+          notificationIds.add(id);
+          print('zonedSchedule at $txTime $id');
+          await notificationsPlugin.zonedSchedule(
+            id,
+            S.current.title_noti(TimeUtils.formatTimeOfDay(time: time) ?? ""),
+            S.current.content_noti,
+            txTime,
+            notificationDetails(),
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+            matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+            payload: jsonEncode(jsonData),
+          );
         }
-
-        print('zonedSchedule at $txTime $id');
-        await notificationsPlugin.zonedSchedule(
-          id,
-          S.current.title_noti(
-              TimeUtils.formatTimeOfDay(time: time) ?? "", medicine.getName),
-          S.current.content_noti,
-          txTime,
-          notificationDetails(),
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents:  DateTimeComponents.dayOfWeekAndTime,
-          payload: medicine.id.toString(),
-        );
       }
     }
     medicine.notificationIDs = notificationIds;
@@ -133,30 +211,19 @@ class NotificationService {
     for (var id in medicine.notificationIDs ?? []) {
       await notificationsPlugin.cancel(id);
     }
+    await notificationsPlugin.cancel(remindNotification);
   }
 
-  Future<void> scheduleNextNotification(Medicine medicine) async {
-    // var id = DateTime.now().weekday;
-    // var txTime = TimeUtils.createTZDateTimeNext(medicine.getInterval);
-    // await notificationsPlugin.zonedSchedule(
-    //     id,
-    //     S.current.title_noti(
-    //         S.current.title_noti(
-    //             TimeUtils.convertTime(TimeUtils.pattern_4, txTime) ?? "",
-    //             medicine.getName),
-    //         medicine.getName),
-    //     S.current.content_noti,
-    //     txTime,
-    //     notificationDetails(),
-    //     androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    //     uiLocalNotificationDateInterpretation:
-    //         UILocalNotificationDateInterpretation.absoluteTime,
-    //     matchDateTimeComponents: DateTimeComponents.dateAndTime);
-  }
-
-  void cancelNow() {
-    var id = DateTime.now().weekday;
-    notificationsPlugin.cancel(id);
+  Future<void> scheduleRemindNotification(
+      String title, String content, String later, String payload) async {
+    var txTime = TimeUtils.nextMinutes(3);
+    await notificationsPlugin.zonedSchedule(remindNotification, title, content,
+        txTime, notificationDetails(later: later),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.dateAndTime,
+        payload: payload);
   }
 
   Future openAlertBox(String title,

@@ -26,7 +26,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(hour) => "${hour} hours";
 
-  static String m3(time, med) => "It\'s time: ${time} to take medicine ${med}";
+  static String m3(med) => "It\'s time to take medicine ${med}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -85,6 +85,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "number": MessageLookupByLibrary.simpleMessage("Number take pill"),
         "ok": MessageLookupByLibrary.simpleMessage("Ok"),
         "prev_ball": MessageLookupByLibrary.simpleMessage("The previous ball"),
+        "remind":
+            MessageLookupByLibrary.simpleMessage("Remind me in 10 minutes"),
+        "remind_later": MessageLookupByLibrary.simpleMessage("Remind later"),
         "reminder_take":
             MessageLookupByLibrary.simpleMessage("Reminder to take medicine!"),
         "same_start": MessageLookupByLibrary.simpleMessage(

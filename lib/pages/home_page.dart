@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:medicine_alarm/constants.dart';
 import 'package:medicine_alarm/generated/l10n.dart';
 import 'package:medicine_alarm/global_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:medicine_alarm/pages/medicine_details/medicine_details.dart';
 import 'package:medicine_alarm/pages/new_entry/new_entry_page.dart';
 import 'package:medicine_alarm/utils/noti_utils.dart';
 import 'package:medicine_alarm/utils/time_utils.dart';
+import 'package:medicine_alarm/widgets/bouncing_button.dart';
 import 'package:medicine_alarm/widgets/countdown_timer.dart';
 import 'package:medicine_alarm/widgets/custom_progress.dart';
 import 'package:medicine_alarm/widgets/empty_widget.dart';
@@ -30,6 +32,10 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     globalBloc ??= Provider.of<GlobalBloc>(context);
+    var id = ModalRoute.of(context)?.settings.arguments;
+    if (id != null) {
+      selectedMed = globalBloc?.findById(id as int);
+    }
   }
 
   @override
@@ -400,9 +406,9 @@ class _HomePageState extends State<HomePage> {
                             startTime: last,
                             nextTime: selectedMed!.next,
                             onCount: () {
-                              if (mounted) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
                                 setState(() {});
-                              }
+                              });
                             },
                             done: selectedMed!.doneToday(),
                           ),
@@ -413,21 +419,15 @@ class _HomePageState extends State<HomePage> {
                             height: 158,
                             child: CustomProgressWidget(
                               strokeWidth: 18.5,
-                              progress: selectedMed!.doneToday()
-                                  ? 100
-                                  : (DateTime.now().millisecondsSinceEpoch -
-                                          last.millisecondsSinceEpoch) *
-                                      100 /
-                                      selectedMed!.totalTime,
+                              progress: selectedMed!.getPercent(),
                               progressColor: kPrimaryColor,
-                              incompleteColor: Colors.transparent,
                             ),
                           ),
                         )
                       ],
                     ),
                   ),
-                  selectedMed!.doneToday()
+                  selectedMed!.doneToday() && selectedMed!.next == null
                       ? SizedBox(
                           width: 20.w,
                           child: Text(S.current.wait_tomorrow,
@@ -509,27 +509,31 @@ class _HomePageState extends State<HomePage> {
                   ? Colors.black26
                   : kPrimaryColor,
             )),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 2.w),
-              disabledBackgroundColor: Colors.black26,
-              backgroundColor: kPrimaryColor),
-          onPressed: selectedMed!.doneToday()
-              ? null
-              : () {
-                  globalBloc?.tookPill(selectedMed!);
-                  NotificationService()
-                      .scheduleNotification(selectedMed!, globalBloc);
-                },
-          child: SizedBox(
-            width: 70.w,
-            child: Center(
-              child: Text(
-                S.current.i_took,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(color: Colors.white),
+        BouncingButton(
+          enable: selectedMed!.isFire() && !selectedMed!.doneToday(),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 2.w),
+                disabledBackgroundColor: Colors.black26,
+                backgroundColor: kPrimaryColor),
+            onPressed: selectedMed!.doneToday()
+                ? null
+                : () {
+                    globalBloc?.tookPill(selectedMed!);
+                    NotificationService()
+                        .scheduleNotification(selectedMed!, globalBloc);
+                    setState(() {});
+                  },
+            child: SizedBox(
+              width: 70.w,
+              child: Center(
+                child: Text(
+                  S.current.i_took,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(color: Colors.white),
+                ),
               ),
             ),
           ),

@@ -34,15 +34,16 @@ class _EditEntryPageState extends State<EditEntryPage> {
   TextEditingController? desController;
   late NewEntryBloc _newEntryBloc;
   GlobalBloc? globalBloc;
-  TimeOfDay? startTime;
-  TimeOfDay? endTime;
+  TimeOfDay startTime = const TimeOfDay(hour: 0, minute: 0);
+  TimeOfDay endTime = const TimeOfDay(hour: 23, minute: 59);
   List<TimeOfDay> timeAlarms = [];
 
   void _selectStartTime(TimeOfDay? picked) async {
     if (picked != null && picked != startTime) {
       setState(() {
         startTime = picked;
-        _newEntryBloc.updateStartTime(startTime);
+        timeAlarms = TimeUtils.calculateAlarmTimes(
+            _newEntryBloc.selectCount?.value, startTime, endTime);
       });
     }
   }
@@ -51,7 +52,8 @@ class _EditEntryPageState extends State<EditEntryPage> {
     if (picked != null && picked != endTime) {
       setState(() {
         endTime = picked;
-        _newEntryBloc.updateEndTime(endTime);
+        timeAlarms = TimeUtils.calculateAlarmTimes(
+            _newEntryBloc.selectCount?.value, startTime, endTime);
       });
     }
   }
@@ -71,10 +73,10 @@ class _EditEntryPageState extends State<EditEntryPage> {
     listPillController = TextEditingController(text: widget.medicine.listPill);
     desController = TextEditingController(text: widget.medicine.description);
     _newEntryBloc.updateCount(widget.medicine.number ?? 0);
-    _newEntryBloc.updateStartTime(widget.medicine.startTime);
-    _newEntryBloc.updateEndTime(widget.medicine.bedTime);
     _newEntryBloc.updateDaySelect(widget.medicine.days);
-
+    timeAlarms = widget.medicine.times;
+    startTime = widget.medicine.startTime;
+    endTime = widget.medicine.bedTime;
     initializeErrorListen();
   }
 
@@ -134,7 +136,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
                         title: S.current.start_time,
                         child: SelectTime(
                           onSelect: _selectStartTime,
-                          time: _newEntryBloc.selectedStartTime$?.value,
+                          time: startTime,
                           child: Container(
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5.0),
@@ -143,9 +145,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
                                 vertical: 4, horizontal: 12),
                             child: Text(
                               TimeUtils.formatTimeOfDay(
-                                      time: _newEntryBloc
-                                          .selectedStartTime$?.value,
-                                      defaultText: "00:00") ??
+                                      time: startTime, defaultText: "00:00") ??
                                   "",
                               style: Theme.of(context)
                                   .textTheme
@@ -164,7 +164,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
                         title: S.current.time_bed,
                         child: SelectTime(
                           onSelect: _selectEndTime,
-                          time: _newEntryBloc.selectedEndTime$?.value,
+                          time: endTime,
                           child: Container(
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5.0),
@@ -173,9 +173,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
                                 vertical: 4, horizontal: 12),
                             child: Text(
                               TimeUtils.formatTimeOfDay(
-                                      time:
-                                          _newEntryBloc.selectedEndTime$?.value,
-                                      defaultText: "23:59") ??
+                                      time: endTime, defaultText: "23:59") ??
                                   "",
                               style: Theme.of(context)
                                   .textTheme
@@ -192,6 +190,10 @@ class _EditEntryPageState extends State<EditEntryPage> {
                         onSelected: (value) {
                           setState(() {
                             _newEntryBloc.updateCount(value);
+                            timeAlarms = TimeUtils.calculateAlarmTimes(
+                                _newEntryBloc.selectCount?.value,
+                                startTime,
+                                endTime);
                           });
                         },
                         getText: S.current.count_option,
@@ -218,14 +220,16 @@ class _EditEntryPageState extends State<EditEntryPage> {
                         ),
                       ),
                       AlarmTime(
-                        startTime: _newEntryBloc.selectedStartTime$?.value ??
-                            const TimeOfDay(hour: 0, minute: 0),
-                        endTime: _newEntryBloc.selectedEndTime$?.value ??
-                            const TimeOfDay(hour: 23, minute: 59),
-                        count: _newEntryBloc.selectCount?.value ?? 0,
-                        times: widget.medicine.times,
+                        times: timeAlarms,
                         onTime: (times) {
                           timeAlarms = times;
+                          if (times.length == 1) {
+                            startTime = times[0];
+                          } else if (times.length >= 2) {
+                            startTime = times.first;
+                            endTime = times.last;
+                          }
+                          setState(() {});
                         },
                       ),
                       const SizedBox(
@@ -292,13 +296,9 @@ class _EditEntryPageState extends State<EditEntryPage> {
     if (number <= 0) {
       _newEntryBloc.submitError(EntryError.interval);
     }
-    TimeOfDay startTime = _newEntryBloc.selectedStartTime$?.value ??
-        const TimeOfDay(hour: 00, minute: 00);
-    TimeOfDay bedTime = _newEntryBloc.selectedEndTime$?.value ??
-        const TimeOfDay(hour: 23, minute: 59);
     List<String> days = _newEntryBloc.selectedDay$?.value ?? [];
     var needEdit = false;
-    if (!TimeUtils.isValidStart(startTime, bedTime)) {
+    if (!TimeUtils.isValidStart(startTime, endTime)) {
       _newEntryBloc.submitError(EntryError.validStartTime);
       return;
     }
@@ -327,7 +327,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
         medicineName: medicineName,
         number: number,
         startTime: startTime,
-        bedTime: bedTime,
+        bedTime: endTime,
         listPill: listPillController?.text,
         description: desController?.text,
         times: timeAlarms,

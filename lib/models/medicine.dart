@@ -15,7 +15,6 @@ class Medicine {
   final List<String> days;
   List<DateTime>? pickTimes;
   List<TimeOfDay> times;
-  bool isDoneOfDay;
 
   Medicine(this.id, this.days,
       {this.notificationIDs,
@@ -26,7 +25,6 @@ class Medicine {
       required this.bedTime,
       this.number,
       this.pickTimes,
-      this.isDoneOfDay = false,
       required this.times});
 
   //geters
@@ -38,31 +36,13 @@ class Medicine {
       pickTimes != null && pickTimes!.isNotEmpty ? pickTimes!.last : null;
 
   DateTime? get next {
-
-    // if (times.isNotEmpty) {
-    //   DateTime now = DateTime.now();
-    //   Duration shortestDuration =
-    //       const Duration(days: 365); // Giả sử một khoảng thời gian tối đa
-    //
-    //   for (var i = 0; i < times.length; i++) {
-    //     var time = times[i];
-    //     DateTime dateTime =
-    //         DateTime(now.year, now.month, now.day, time.hour, time.minute);
-    //     if (dateTime.isAfter(now) &&
-    //         dateTime.difference(now) < shortestDuration &&
-    //         i >= (pickTimes?.length ?? 0)) {
-    //       shortestDuration = dateTime.difference(now);
-    //       nextTime = dateTime;
-    //     }
-    //   }
-    // }
     if (pickTimes == null || pickTimes!.isEmpty) {
       return TimeUtils.getDateTime(times.first);
     } else {
-     var index = pickTimes?.length ?? -1;
-     if(index != -1){
-       return TimeUtils.getDateTime(times[index]);
-     }
+      var index = (pickTimes?.length ?? -1);
+      if (index != -1 && index < times.length) {
+        return TimeUtils.getDateTime(times[index]);
+      }
     }
     return null;
   }
@@ -73,6 +53,21 @@ class Medicine {
       return duration.inMilliseconds;
     }
     return 1;
+  }
+
+  double getPercent() {
+    if (next == null || DateTime.now().isAfter(next!) || doneToday()) {
+      return 100;
+    }
+    return (totalTime -
+            next!.millisecondsSinceEpoch +
+            DateTime.now().millisecondsSinceEpoch) *
+        100 /
+        totalTime;
+  }
+
+  bool isFire() {
+    return getPercent() > 95;
   }
 
   bool getActive() {
@@ -109,7 +104,6 @@ class Medicine {
       'pickTimes': pickTimes?.map((e) {
         return TimeUtils.convertTime(TimeUtils.pattern_3, e);
       }).toList(),
-      'isDoneOfDay': isDoneOfDay
     };
   }
 
@@ -127,7 +121,6 @@ class Medicine {
                 .map((e) => TimeUtils.parseTime(TimeUtils.pattern_3, e))
                 .toList()
             : null,
-        isDoneOfDay: parsedJson['isDoneOfDay'],
         times: parsedJson['times'] != null
             ? List<String>.from(parsedJson['times'])
                 .map((e) => TimeUtils.parseTimeOfDay(e))
@@ -138,10 +131,6 @@ class Medicine {
   bool doneToday() {
     var isBefore = last == null;
     var pickDone = (pickTimes?.length ?? 0) >= (number ?? 0);
-    var lastTime = times.isNotEmpty
-        ? TimeUtils.getDateTime(times.last)
-        : DateTime.now().subtract(const Duration(seconds: 2));
-    var isAfterLast = DateTime.now().isAfter(lastTime);
-    return !isBefore & (pickDone || isDoneOfDay || isAfterLast);
+    return !isBefore & pickDone;
   }
 }

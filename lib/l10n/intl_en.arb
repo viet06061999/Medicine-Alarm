@@ -52,12 +52,9 @@
       }
     }
   },
-  "title_noti": "It's time: {time} to take medicine {med}",
+  "title_noti": "It's time to take medicine {med}",
   "@title_noti": {
     "placeholders": {
-      "time": {
-        "type": "String"
-      },
       "med": {
         "type": "String"
       }
@@ -87,5 +84,7 @@
   "edit_pill": "Edit Pill",
   "take_time": "When take pill?",
   "same_start": "You have another pill same start time",
-  "want_change": "Do you want to change the start time?"
+  "want_change": "Do you want to change the start time?",
+  "remind_later": "Remind later",
+  "remind": "Remind me in 10 minutes"
 }

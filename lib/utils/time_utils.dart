@@ -51,6 +51,7 @@ class TimeUtils {
       int dayOfWeek, TimeOfDay timeOfDay) {
     final DateTime now = DateTime.now();
     final int daysToAdd = (dayOfWeek - now.weekday + 7) % 7;
+    print('day: $dayOfWeek ${now.weekday} $daysToAdd');
     return tz.TZDateTime(
       tz.local,
       now.year,
@@ -61,8 +62,19 @@ class TimeUtils {
     );
   }
 
-  static tz.TZDateTime createTZDateTimeForNext(
-      int days, TimeOfDay timeOfDay) {
+  static tz.TZDateTime nextMinutes(int minute) {
+    final DateTime now = DateTime.now();
+    return tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+    ).add(Duration(minutes: minute));
+  }
+
+  static tz.TZDateTime createTZDateTimeForNext(int days, TimeOfDay timeOfDay) {
     final DateTime now = DateTime.now();
     return tz.TZDateTime(
       tz.local,
@@ -89,5 +101,41 @@ class TimeUtils {
       return defaultText;
     }
     return "${time.hour <= 9 ? "0${time.hour}" : time.hour}:${time.minute <= 9 ? "0${time.minute}" : time.minute}";
+  }
+
+  static List<TimeOfDay> calculateAlarmTimes(
+      int? count, TimeOfDay? startTime, TimeOfDay? endTime) {
+    if (count == null || count == 0 || startTime == null || endTime == null) {
+      return [];
+    }
+    final List<TimeOfDay> alarmTimes = [];
+
+    final int totalMinutes = _calculateTotalMinutes(startTime, endTime);
+    final int interval =
+        totalMinutes ~/ (count - 1); // Chia đều khoảng thời gian
+
+    TimeOfDay currentTime = startTime;
+    alarmTimes.add(startTime);
+    for (int i = 0; i < count - 2; i++) {
+      currentTime = _addMinutes(currentTime, interval);
+      alarmTimes.add(currentTime);
+    }
+    if (alarmTimes.length < count) {
+      alarmTimes.add(endTime);
+    }
+    return alarmTimes;
+  }
+
+  static int _calculateTotalMinutes(TimeOfDay startTime, TimeOfDay endTime) {
+    final int startMinutes = startTime.hour * 60 + startTime.minute;
+    final int endMinutes = endTime.hour * 60 + endTime.minute;
+    return endMinutes - startMinutes;
+  }
+
+  static TimeOfDay _addMinutes(TimeOfDay time, int minutes) {
+    final int totalMinutes = time.hour * 60 + time.minute + minutes;
+    final int hours = totalMinutes ~/ 60;
+    final int remainingMinutes = totalMinutes % 60;
+    return TimeOfDay(hour: hours, minute: remainingMinutes);
   }
 }

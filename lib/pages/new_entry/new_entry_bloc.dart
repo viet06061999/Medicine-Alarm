@@ -3,14 +3,6 @@ import 'package:rxdart/rxdart.dart';
 import '../../models/errors.dart';
 
 class NewEntryBloc {
-  BehaviorSubject<TimeOfDay?>? _selectedStartTime$;
-
-  BehaviorSubject<TimeOfDay?>? get selectedStartTime$ => _selectedStartTime$;
-
-  BehaviorSubject<TimeOfDay?>? _selectedEndTime$;
-
-  BehaviorSubject<TimeOfDay?>? get selectedEndTime$ => _selectedEndTime$;
-
   //error state
   BehaviorSubject<EntryError>? _errorState$;
 
@@ -31,9 +23,7 @@ class NewEntryBloc {
   }
 
   void dispose() {
-    _selectedStartTime$?.close();
     _selectedDay$?.close();
-    _selectedEndTime$?.close();
   }
 
   void submitError(EntryError error) {
@@ -46,21 +36,5 @@ class NewEntryBloc {
 
   void updateDaySelect(List<String> days) {
     _selectedDay$?.add(days);
-  }
-
-  void updateStartTime(TimeOfDay? time) {
-    if (_selectedStartTime$ == null) {
-      _selectedStartTime$ = BehaviorSubject<TimeOfDay?>.seeded(time);
-    } else {
-      _selectedStartTime$!.add(time);
-    }
-  }
-
-  void updateEndTime(TimeOfDay? time) {
-    if (_selectedEndTime$ == null) {
-      _selectedEndTime$ = BehaviorSubject<TimeOfDay?>.seeded(time);
-    } else {
-      _selectedEndTime$?.add(time);
-    }
   }
 }
