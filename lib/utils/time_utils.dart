@@ -32,6 +32,18 @@ class TimeUtils {
     return DateTime(now.year, now.month, now.day, time.hour, time.minute);
   }
 
+  static DateTime getDateTimeNext(TimeOfDay startTime, TimeOfDay time,
+      {bool plusDay = false}) {
+    DateTime now = DateTime.now();
+    var start = getDateTime(startTime);
+    var timeGet = getDateTime(time);
+    if (now.isBefore(start) & !plusDay) {
+      return timeGet;
+    } else {
+      return timeGet.add(const Duration(days: 1));
+    }
+  }
+
   static bool isAfterEnd(
       TimeOfDay start, TimeOfDay end, int duration, int count) {
     var last = TimeOfDay(
@@ -50,7 +62,7 @@ class TimeUtils {
   static tz.TZDateTime createTZDateTimeForDayOfWeek(
       int dayOfWeek, TimeOfDay timeOfDay) {
     final DateTime now = DateTime.now();
-    final int daysToAdd = (dayOfWeek - now.weekday + 7) % 7;
+    final int daysToAdd = dayOfWeek - now.weekday;
     print('day: $dayOfWeek ${now.weekday} $daysToAdd');
     return tz.TZDateTime(
       tz.local,
@@ -108,17 +120,21 @@ class TimeUtils {
     if (count == null || count == 0 || startTime == null || endTime == null) {
       return [];
     }
+    if (count == 1) {
+      return [startTime];
+    }
     final List<TimeOfDay> alarmTimes = [];
 
     final int totalMinutes = _calculateTotalMinutes(startTime, endTime);
     final int interval =
         totalMinutes ~/ (count - 1); // Chia đều khoảng thời gian
 
-    TimeOfDay currentTime = startTime;
+    DateTime currentTime = TimeUtils.getDateTime(startTime);
     alarmTimes.add(startTime);
     for (int i = 0; i < count - 2; i++) {
-      currentTime = _addMinutes(currentTime, interval);
-      alarmTimes.add(currentTime);
+      currentTime = currentTime.add(Duration(minutes: interval));
+      alarmTimes
+          .add(TimeOfDay(hour: currentTime.hour, minute: currentTime.minute));
     }
     if (alarmTimes.length < count) {
       alarmTimes.add(endTime);
@@ -128,7 +144,10 @@ class TimeUtils {
 
   static int _calculateTotalMinutes(TimeOfDay startTime, TimeOfDay endTime) {
     final int startMinutes = startTime.hour * 60 + startTime.minute;
-    final int endMinutes = endTime.hour * 60 + endTime.minute;
+    int endMinutes = endTime.hour * 60 + endTime.minute;
+    if (TimeUtils.isNextDay(startTime, endTime)) {
+      return 24 * 60 - startMinutes + endMinutes;
+    }
     return endMinutes - startMinutes;
   }
 
@@ -137,5 +156,18 @@ class TimeUtils {
     final int hours = totalMinutes ~/ 60;
     final int remainingMinutes = totalMinutes % 60;
     return TimeOfDay(hour: hours, minute: remainingMinutes);
+  }
+
+  static bool isNextDay(TimeOfDay startTime, TimeOfDay time) {
+    return startTime.hour * 60 + startTime.minute >
+        time.hour * 60 + time.minute;
+  }
+
+  static DateTime getTimeIfNext(TimeOfDay startTime, TimeOfDay time, {bool plusDay = false}) {
+    if (isNextDay(startTime, time)) {
+      return getDateTimeNext(startTime, time, plusDay: plusDay);
+    } else {
+      return getDateTime(time);
+    }
   }
 }

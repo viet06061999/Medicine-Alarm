@@ -41,6 +41,9 @@ class Medicine {
     } else {
       var index = (pickTimes?.length ?? -1);
       if (index != -1 && index < times.length) {
+        if (TimeUtils.isNextDay(startTime, times[index])) {
+          return TimeUtils.getDateTimeNext(startTime, times[index]);
+        }
         return TimeUtils.getDateTime(times[index]);
       }
     }

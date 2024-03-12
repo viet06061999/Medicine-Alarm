@@ -148,13 +148,27 @@ class GlobalBloc {
         dynamic userMap = jsonDecode(jsonMedicine);
         Medicine tempMedicine = Medicine.fromJson(userMap);
         var lastTime = tempMedicine.last;
-        var now = DateTime.now();
-        if (lastTime != null &&
-            (lastTime.year < now.year ||
+        if (lastTime != null) {
+          var now = DateTime.now();
+          var needReset = false;
+          if (TimeUtils.isNextDay(
+              tempMedicine.startTime, tempMedicine.bedTime)) {
+            var start = TimeUtils.getDateTime(tempMedicine.startTime);
+            var first = tempMedicine.pickTimes!.first;
+            var bed = TimeUtils.getTimeIfNext(
+                tempMedicine.startTime, tempMedicine.bedTime);
+            needReset =
+                DateTime.now().isAfter(bed.add(const Duration(minutes: 10))) &&
+                    first.isBefore(start);
+          } else {
+            needReset = (lastTime.year < now.year ||
                 lastTime.month < now.month ||
-                lastTime.day < now.day)) {
-          isChange = true;
-          tempMedicine.pickTimes = [];
+                lastTime.day < now.day);
+          }
+          if (needReset) {
+            isChange = true;
+            tempMedicine.pickTimes = [];
+          }
         }
         prefList.add(tempMedicine);
       }

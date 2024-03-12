@@ -24,7 +24,13 @@ class _BouncingButtonState extends State<BouncingButton>
       duration: const Duration(milliseconds: 500),
       lowerBound: 0.0,
       upperBound: 1.0, // Giới hạn giá trị animation từ 0.0 đến 1.0
-    );
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _animationController.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        _animationController.forward();
+      }
+    });
 
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -33,16 +39,34 @@ class _BouncingButtonState extends State<BouncingButton>
       ),
     );
 
-    _animationController.addListener(() {
-      if (_animationController.isCompleted) {
-        _animationController.reset(); // Đặt lại animation về giá trị ban đầu
-        _animationController.forward(); // Chạy animation từ đầu
-      }
-    });
-
-    _animationController.forward(); // Bắt đầu chạy animation
+    if (widget.enable) {
+      _animationController.forward();
+    }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!widget.enable) {
+      _animationController.reverse().then((value){
+        _animationController.stop();
+      });
+    } else{
+      _animationController.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant BouncingButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.enable) {
+      _animationController.reverse().then((value){
+        _animationController.stop();
+      });
+    } else{
+      _animationController.forward();
+    }
+  }
   @override
   void dispose() {
     _animationController.dispose();

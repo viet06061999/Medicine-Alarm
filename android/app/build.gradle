@@ -52,8 +52,8 @@ android {
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 4
-        versionName '1.0.4'
+        versionCode 7
+        versionName '1.0.7'
     }
 
     buildTypes {
@@ -74,4 +74,3 @@ dependencies {
     implementation 'androidx.window:window:1.0.0'
     implementation 'androidx.window:window-java:1.0.0'
 }
-

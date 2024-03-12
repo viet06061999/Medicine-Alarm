@@ -86,5 +86,25 @@
   "same_start": "You have another pill same start time",
   "want_change": "Do you want to change the start time?",
   "remind_later": "Remind later",
-  "remind": "Remind me in 10 minutes"
+  "remind": "Remind me in 10 minutes",
+  "confirm_took": "Do you want to take a pill?",
+  "select_time_warning": "Can choose time from {start} to {end}!",
+  "@select_time_warning": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "time_next": "{time} next day",
+  "@time_next": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

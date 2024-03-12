@@ -649,6 +649,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Do you want to take a pill?`
+  String get confirm_took {
+    return Intl.message(
+      'Do you want to take a pill?',
+      name: 'confirm_took',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Can choose time from {start} to {end}!`
+  String select_time_warning(String start, String end) {
+    return Intl.message(
+      'Can choose time from $start to $end!',
+      name: 'select_time_warning',
+      desc: '',
+      args: [start, end],
+    );
+  }
+
+  /// `{time} next day`
+  String time_next(String time) {
+    return Intl.message(
+      '$time next day',
+      name: 'time_next',
+      desc: '',
+      args: [time],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

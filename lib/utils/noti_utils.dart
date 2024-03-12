@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -54,6 +55,9 @@ class NotificationService {
   static const int otherNotification = 3;
   static const int remindNotification = 5;
   static const String remindLater = '4';
+
+  static const MethodChannel platform =
+      MethodChannel('dexterx.dev/flutter_local_notifications_example');
 
   // Khai báo một hàm factory để trả về thể hiện duy nhất của NotificationService
   factory NotificationService() {
@@ -109,19 +113,19 @@ class NotificationService {
     }
   }
 
-  notificationDetails({String? later}) {
+  notificationDetails({String? later}) async {
+    final String? alarmUri = await platform.invokeMethod<String>('getAlarmUri');
+    UriAndroidNotificationSound? uriSound;
+    if (alarmUri != null) {
+      uriSound = UriAndroidNotificationSound(alarmUri);
+    }
     return NotificationDetails(
         android: AndroidNotificationDetails(
             'repeatDailyAtTime channel id', 'repeatDailyAtTime channel name',
             importance: Importance.max,
-            ledColor: kOtherColor,
             priority: Priority.high,
-            category: AndroidNotificationCategory.reminder,
-            ledOffMs: 1000,
-            playSound: true,
-            ledOnMs: 1000,
-            enableLights: true,
-            audioAttributesUsage: AudioAttributesUsage.alarm,
+            sound: uriSound,
+            styleInformation: const DefaultStyleInformation(true, true),
             actions: [
               AndroidNotificationAction(
                   remindLater, later ?? S.current.remind_later)
@@ -143,6 +147,8 @@ class NotificationService {
     var lastTime = medicine.last;
     for (var day in days) {
       for (TimeOfDay time in medicine.times ?? []) {
+        var isNextDay = TimeUtils.isNextDay(medicine.startTime, time);
+        var plusDay = isNextDay ? 1 : 0;
         final jsonData = {
           'medicineId': medicine.id,
           'title':
@@ -175,7 +181,7 @@ class NotificationService {
               S.current.title_noti(TimeUtils.formatTimeOfDay(time: time) ?? ""),
               S.current.content_noti,
               txTime,
-              notificationDetails(),
+              await notificationDetails(),
               androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
               uiLocalNotificationDateInterpretation:
                   UILocalNotificationDateInterpretation.absoluteTime,
@@ -184,7 +190,8 @@ class NotificationService {
             );
           }
         } else {
-          txTime = TimeUtils.createTZDateTimeForDayOfWeek(int.parse(day), time);
+          txTime = TimeUtils.createTZDateTimeForDayOfWeek(
+              int.parse(day) + plusDay, time);
           var id = int.parse('${medicine.id}$dayNotification$day${time.hour}');
           notificationIds.add(id);
           print('zonedSchedule at $txTime $id');
@@ -193,7 +200,7 @@ class NotificationService {
             S.current.title_noti(TimeUtils.formatTimeOfDay(time: time) ?? ""),
             S.current.content_noti,
             txTime,
-            notificationDetails(),
+            await notificationDetails(),
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
             uiLocalNotificationDateInterpretation:
                 UILocalNotificationDateInterpretation.absoluteTime,
@@ -216,9 +223,9 @@ class NotificationService {
 
   Future<void> scheduleRemindNotification(
       String title, String content, String later, String payload) async {
-    var txTime = TimeUtils.nextMinutes(3);
+    var txTime = TimeUtils.nextMinutes(10);
     await notificationsPlugin.zonedSchedule(remindNotification, title, content,
-        txTime, notificationDetails(later: later),
+        txTime, await notificationDetails(later: later),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
@@ -230,6 +237,7 @@ class NotificationService {
       {String? content,
       String? negative,
       String? positive,
+      bool noActions = false,
       Function? onNegative,
       Function? onPositive}) async {
     if (NotificationService.navigatorKey.currentContext == null) {
@@ -264,29 +272,41 @@ class NotificationService {
                       ?.copyWith(color: kOrange),
                 )
               : null,
-          actions: [
-            TextButton(
-              onPressed: () {
-                onNegative?.call();
-                Navigator.pop(context);
-              },
-              child: Text(
-                negative ?? S.current.cancel,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                //global block to delete medicine,later
-                onPositive?.call();
-                Navigator.pop(context);
-              },
-              child: Text(
-                positive ?? S.current.ok,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-          ],
+          actions: noActions
+              ? [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      S.current.ok,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                ]
+              : [
+                  TextButton(
+                    onPressed: () {
+                      onNegative?.call();
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      negative ?? S.current.cancel,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      //global block to delete medicine,later
+                      onPositive?.call();
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      positive ?? S.current.ok,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                ],
         );
       },
     );

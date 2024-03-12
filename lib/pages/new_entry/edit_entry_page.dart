@@ -237,6 +237,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
                       ),
                       SelectDayWeek(
                         enable: true,
+                        days: _newEntryBloc.selectedDay$?.value ?? ["0"],
                         onSelect: (values) {
                           _newEntryBloc.updateDaySelect(values);
                         },
@@ -284,6 +285,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
     if (nameController.text != "") {
       medicineName = nameController.text;
     }
+
     //dosage
     for (var medicine in globalBloc!.medicineList$!.value) {
       if (medicineName == medicine.medicineName &&
@@ -296,12 +298,10 @@ class _EditEntryPageState extends State<EditEntryPage> {
     if (number <= 0) {
       _newEntryBloc.submitError(EntryError.interval);
     }
+
     List<String> days = _newEntryBloc.selectedDay$?.value ?? [];
     var needEdit = false;
-    if (!TimeUtils.isValidStart(startTime, endTime)) {
-      _newEntryBloc.submitError(EntryError.validStartTime);
-      return;
-    }
+
     // if (TimeUtils.isAfterEnd(startTime, bedTime, interval, number)) {
     //   await NotificationService().openAlertBox(S.current.bedtime_before_title,
     //       content: S.current.bedtime_before_content,

@@ -518,11 +518,28 @@ class _HomePageState extends State<HomePage> {
                 backgroundColor: kPrimaryColor),
             onPressed: selectedMed!.doneToday()
                 ? null
-                : () {
-                    globalBloc?.tookPill(selectedMed!);
-                    NotificationService()
-                        .scheduleNotification(selectedMed!, globalBloc);
-                    setState(() {});
+                : () async {
+                    var last = selectedMed!.last;
+                    var isOk = true;
+                    if (last != null) {
+                      var diff = DateTime.now().difference(last);
+                      if (!diff.isNegative && diff.inMinutes <= 30) {
+                        await NotificationService().openAlertBox(
+                          S.current.confirm_took,
+                          negative: S.current.no,
+                          positive: S.current.yes,
+                          onNegative: () {
+                            isOk = false;
+                          },
+                        );
+                      }
+                    }
+                    if (isOk) {
+                      globalBloc?.tookPill(selectedMed!);
+                      NotificationService()
+                          .scheduleNotification(selectedMed!, globalBloc);
+                      setState(() {});
+                    }
                   },
             child: SizedBox(
               width: 70.w,

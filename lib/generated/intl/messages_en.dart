@@ -26,7 +26,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(hour) => "${hour} hours";
 
-  static String m3(med) => "It\'s time to take medicine ${med}";
+  static String m3(start, end) => "Can choose time from ${start} to ${end}!";
+
+  static String m4(time) => "${time} next day";
+
+  static String m5(med) => "It\'s time to take medicine ${med}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -44,6 +48,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "cancel_last":
             MessageLookupByLibrary.simpleMessage("Cancel the last take pill?"),
+        "confirm_took":
+            MessageLookupByLibrary.simpleMessage("Do you want to take a pill?"),
         "content_noti": MessageLookupByLibrary.simpleMessage(
             "Don\'t forget to mark it as \"I took this pill\""),
         "count_option": m0,
@@ -93,6 +99,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "same_start": MessageLookupByLibrary.simpleMessage(
             "You have another pill same start time"),
         "sat": MessageLookupByLibrary.simpleMessage("Sat"),
+        "select_time_warning": m3,
         "settings": MessageLookupByLibrary.simpleMessage("Settings"),
         "start_time": MessageLookupByLibrary.simpleMessage("Start time"),
         "sun": MessageLookupByLibrary.simpleMessage("Sun"),
@@ -100,7 +107,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "thu": MessageLookupByLibrary.simpleMessage("Thu"),
         "time_bed": MessageLookupByLibrary.simpleMessage("Bed time"),
         "time_left": MessageLookupByLibrary.simpleMessage("Time left"),
-        "title_noti": m3,
+        "time_next": m4,
+        "title_noti": m5,
         "tue": MessageLookupByLibrary.simpleMessage("Tue"),
         "wait_pick": MessageLookupByLibrary.simpleMessage(
             "Waiting for the first pill of the day!"),

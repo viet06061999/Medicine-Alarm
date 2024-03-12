@@ -299,12 +299,13 @@ class _NewEntryPageState extends State<NewEntryPage> {
       }
     }
     int number = _newEntryBloc.selectCount!.value;
-    List<String> days = _newEntryBloc.selectedDay$?.value ?? [];
-    var needEdit = false;
-    if (!TimeUtils.isValidStart(startTime, endTime)) {
-      _newEntryBloc.submitError(EntryError.validStartTime);
+    if(number <= 0 || timeAlarms.isEmpty){
+      _newEntryBloc.submitError(EntryError.interval);
       return;
     }
+    List<String> days = _newEntryBloc.selectedDay$?.value ?? [];
+    var needEdit = false;
+
     // if (TimeUtils.isAfterEnd(startTime, bedTime, interval, number)) {
     //   await NotificationService().openAlertBox(S.current.bedtime_before_title,
     //       content: S.current.bedtime_before_content,

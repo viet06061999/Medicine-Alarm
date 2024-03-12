@@ -26,7 +26,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(hour) => "${hour} שעות";
 
-  static String m3(med) => "הגיע הזמן לקחת תרופה ${med}";
+  static String m3(start, end) => "יכול לבחור זמן מ-${start} עד ${end}!";
+
+  static String m5(med) => "הגיע הזמן לקחת תרופה ${med}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -44,6 +46,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "cancel": MessageLookupByLibrary.simpleMessage("לְבַטֵל"),
         "cancel_last":
             MessageLookupByLibrary.simpleMessage("לבטל את הגלולה האחרונה?"),
+        "confirm_took":
+            MessageLookupByLibrary.simpleMessage("האם אתה רוצה לקחת כדור?"),
         "content_noti": MessageLookupByLibrary.simpleMessage(
             "אל תשכח לסמן את זה כ\"לקחתי את הגלולה הזו\""),
         "count_option": m0,
@@ -91,6 +95,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "same_start": MessageLookupByLibrary.simpleMessage(
             "יש לך עוד גלולה באותו זמן התחלה"),
         "sat": MessageLookupByLibrary.simpleMessage("ום ש"),
+        "select_time_warning": m3,
         "settings": MessageLookupByLibrary.simpleMessage("הגדרות"),
         "start_time": MessageLookupByLibrary.simpleMessage("שעת התחלה"),
         "sun": MessageLookupByLibrary.simpleMessage("ום א"),
@@ -98,7 +103,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "thu": MessageLookupByLibrary.simpleMessage("ום ה"),
         "time_bed": MessageLookupByLibrary.simpleMessage("זמן השינה"),
         "time_left": MessageLookupByLibrary.simpleMessage("הזמן שנותר"),
-        "title_noti": m3,
+        "title_noti": m5,
         "tue": MessageLookupByLibrary.simpleMessage("ום ג"),
         "wait_pick": MessageLookupByLibrary.simpleMessage(
             "מחכה לגלולה הראשונה של היום!"),
