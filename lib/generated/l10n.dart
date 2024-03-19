@@ -120,10 +120,10 @@ class S {
     );
   }
 
-  /// `I took this pill`
+  /// `Click here i took a pill`
   String get i_took {
     return Intl.message(
-      'I took this pill',
+      'Click here i took a pill',
       name: 'i_took',
       desc: '',
       args: [],
@@ -677,6 +677,16 @@ class S {
       name: 'time_next',
       desc: '',
       args: [time],
+    );
+  }
+
+  /// `The pill you need to take today`
+  String get need_take {
+    return Intl.message(
+      'The pill you need to take today',
+      name: 'need_take',
+      desc: '',
+      args: [],
     );
   }
 }

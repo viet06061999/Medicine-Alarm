@@ -97,6 +97,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16), topRight: Radius.circular(16))),
         height: 88.h,
+        width: 100.w,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Scaffold(
           backgroundColor: Colors.white,

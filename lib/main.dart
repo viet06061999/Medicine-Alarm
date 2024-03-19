@@ -21,9 +21,6 @@ Future<void> main() async {
   tz.initializeTimeZones();
   final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
   tz.setLocalLocation(tz.getLocation(currentTimeZone));
-  if (DateTime.now().isAfter(DateTime.utc(2024, 4, 1, 1))) {
-    throw Exception();
-  }
   runApp(const MyApp());
   await NotificationService().initNotification();
 }

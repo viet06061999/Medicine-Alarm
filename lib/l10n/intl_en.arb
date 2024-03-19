@@ -13,7 +13,7 @@
     }
   },
   "what_time": "What is time now?",
-  "i_took": "I took this pill",
+  "i_took": "Click here i took a pill",
   "wait_pick": "Waiting for the first pill of the day!",
   "time_left": "Time left",
   "prev_ball": "The previous ball",
@@ -106,5 +106,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "need_take": "The pill you need to take today"
 }

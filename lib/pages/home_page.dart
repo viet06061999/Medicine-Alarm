@@ -74,6 +74,7 @@ class _HomePageState extends State<HomePage> {
           child: buildBody(),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
       floatingActionButton: InkResponse(
         onTap: () {
           // go to new entry page
@@ -86,17 +87,17 @@ class _HomePageState extends State<HomePage> {
           );
         },
         child: SizedBox(
-          width: 18.w,
-          height: 9.h,
+          width: 64,
+          height: 64,
           child: Card(
             color: kPrimaryColor,
             shape: BeveledRectangleBorder(
               borderRadius: BorderRadius.circular(3.h),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.add_outlined,
               color: kScaffoldColor,
-              size: 50.sp,
+              size: 48,
             ),
           ),
         ),
@@ -132,33 +133,51 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Container(
-                        height: 4.h,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(5.0),
-                            color: kPrimaryColor),
-                        padding: EdgeInsets.symmetric(horizontal: 1.h),
-                        child: DropdownButton<Medicine>(
-                          padding: const EdgeInsets.symmetric(vertical: 1),
-                          underline: const SizedBox(),
-                          dropdownColor: kPrimaryColor,
-                          value: selectedMed ?? snapshot.data?.first,
-                          onChanged: (Medicine? newValue) {
-                            setState(() {
-                              selectedMed = newValue;
-                            });
-                          },
-                          items: snapshot.data!.map((Medicine medicine) {
-                            return DropdownMenuItem<Medicine>(
-                              value: medicine,
-                              child: Text(
-                                medicine.getName,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            );
-                          }).toList(),
-                        ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            S.current.need_take,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(color: Colors.black),
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Container(
+                            height: 4.h,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: kPrimaryColor),
+                            padding: EdgeInsets.symmetric(horizontal: 1.h),
+                            child: DropdownButton<Medicine>(
+                              padding: const EdgeInsets.symmetric(vertical: 1),
+                              underline: const SizedBox(),
+                              dropdownColor: kPrimaryColor,
+                              value: selectedMed ?? snapshot.data?.first,
+                              onChanged: (Medicine? newValue) {
+                                setState(() {
+                                  selectedMed = newValue;
+                                });
+                              },
+                              items: snapshot.data!.map((Medicine medicine) {
+                                return DropdownMenuItem<Medicine>(
+                                  value: medicine,
+                                  child: Text(
+                                    medicine.getName,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(
                         height: 16,
@@ -292,35 +311,34 @@ class _HomePageState extends State<HomePage> {
   Widget buildWhenDid() {
     return isBefore()
         ? Container()
-        : Column(
-            children: [
-              Text(
-                S.current.when_did,
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: Colors.black),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              SizedBox(
-                height: 36,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: selectedMed!.pickTimes?.length ?? 0,
-                  itemBuilder: (BuildContext context, int index) {
-                    var time = selectedMed!.pickTimes?[index];
-                    if (time != null) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        decoration: BoxDecoration(
-                            color: kBackground,
-                            borderRadius: BorderRadius.circular(8)),
-                        child: Center(
+        : SizedBox(
+            width: 100.w,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  S.current.when_did,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Colors.black),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                Wrap(
+                  children: selectedMed!.pickTimes?.map((e) {
+                        var time = e;
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8),
+                          margin: const EdgeInsets.only(right: 8, top: 8),
+                          decoration: BoxDecoration(
+                              color: kBackground,
+                              borderRadius: BorderRadius.circular(8)),
                           child: Text(
                             TimeUtils.convertTime(TimeUtils.pattern_4, time),
                             style: Theme.of(context)
@@ -330,14 +348,12 @@ class _HomePageState extends State<HomePage> {
                                     color: kPrimaryColor,
                                     fontWeight: FontWeight.bold),
                           ),
-                        ),
-                      );
-                    }
-                    return null;
-                  },
-                ),
-              )
-            ],
+                        );
+                      }).toList() ??
+                      [],
+                )
+              ],
+            ),
           );
   }
 
@@ -515,7 +531,7 @@ class _HomePageState extends State<HomePage> {
             style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 2.w),
                 disabledBackgroundColor: Colors.black26,
-                backgroundColor: kPrimaryColor),
+                backgroundColor: kOrange),
             onPressed: selectedMed!.doneToday()
                 ? null
                 : () async {

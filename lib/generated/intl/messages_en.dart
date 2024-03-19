@@ -77,12 +77,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "fri": MessageLookupByLibrary.simpleMessage("Fri"),
         "hello": m1,
         "hour_option": m2,
-        "i_took": MessageLookupByLibrary.simpleMessage("I took this pill"),
+        "i_took":
+            MessageLookupByLibrary.simpleMessage("Click here i took a pill"),
         "list_pill": MessageLookupByLibrary.simpleMessage("List off pill"),
         "mon": MessageLookupByLibrary.simpleMessage("Mon"),
         "name_null":
             MessageLookupByLibrary.simpleMessage("Please enter user name!"),
         "name_pill": MessageLookupByLibrary.simpleMessage("Name off pill"),
+        "need_take": MessageLookupByLibrary.simpleMessage(
+            "The pill you need to take today"),
         "next": MessageLookupByLibrary.simpleMessage("Next"),
         "next_ball": MessageLookupByLibrary.simpleMessage("The next ball"),
         "no": MessageLookupByLibrary.simpleMessage("No"),
